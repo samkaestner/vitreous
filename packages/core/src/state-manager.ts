@@ -63,7 +63,7 @@ export function createDeterministicIdFactory(
 function assertBranchExists(state: ThoughtTreeState, branchId: BranchId): BranchMeta {
   const branch = state.branchesById[branchId];
   if (!branch) {
-    throw new Error(`[GlassBox] Branch "${branchId}" does not exist.`);
+    throw new Error(`[Vitreous] Branch "${branchId}" does not exist.`);
   }
   return branch;
 }
@@ -71,7 +71,7 @@ function assertBranchExists(state: ThoughtTreeState, branchId: BranchId): Branch
 function assertNodeExists(state: ThoughtTreeState, nodeId: NodeId): ThoughtNode {
   const node = state.nodesById[nodeId];
   if (!node) {
-    throw new Error(`[GlassBox] Node "${nodeId}" does not exist.`);
+    throw new Error(`[Vitreous] Node "${nodeId}" does not exist.`);
   }
   return node;
 }
@@ -174,7 +174,7 @@ export function addNodeToThoughtTree(
 
   if (input.type === "decision") {
     if (input.confidence < 0 || input.confidence > 1) {
-      throw new Error("[GlassBox] Decision confidence must be within [0..1].");
+      throw new Error("[Vitreous] Decision confidence must be within [0..1].");
     }
     for (const provenanceId of input.provenance) {
       assertNodeExists(state, provenanceId);
@@ -182,7 +182,7 @@ export function addNodeToThoughtTree(
   }
 
   if (input.type === "conflict" && input.contenders.length < 2) {
-    throw new Error("[GlassBox] Conflict node requires at least two contenders.");
+    throw new Error("[Vitreous] Conflict node requires at least two contenders.");
   }
 
   if (input.type === "conflict") {
@@ -195,7 +195,7 @@ export function addNodeToThoughtTree(
   const factory = options.idFactory ?? createDeterministicIdFactory();
   const usedNodeIds = getUsedNodeIds(state);
   if (input.id && usedNodeIds.has(input.id)) {
-    throw new Error(`[GlassBox] Node "${input.id}" already exists.`);
+    throw new Error(`[Vitreous] Node "${input.id}" already exists.`);
   }
   const rawNodeId = input.id ?? factory.nextNodeId({ type: input.type, branchId });
   const nodeId = input.id ?? uniqueId(rawNodeId, usedNodeIds);
@@ -235,7 +235,7 @@ export function forkThoughtTreeAtNode(
 
   if (forkIndex < 0) {
     throw new Error(
-      `[GlassBox] Cannot fork at "${input.nodeId}" because it is not present in branch "${fromBranchId}".`
+      `[Vitreous] Cannot fork at "${input.nodeId}" because it is not present in branch "${fromBranchId}".`
     );
   }
 
@@ -243,7 +243,7 @@ export function forkThoughtTreeAtNode(
   const factory = options.idFactory ?? createDeterministicIdFactory();
   const usedBranchIds = getUsedBranchIds(state);
   if (input.branchId && usedBranchIds.has(input.branchId)) {
-    throw new Error(`[GlassBox] Branch "${input.branchId}" already exists.`);
+    throw new Error(`[Vitreous] Branch "${input.branchId}" already exists.`);
   }
   const rawBranchId = factory.nextBranchId({
     parentBranchId: fromBranchId,
@@ -280,11 +280,11 @@ export function resolveConflictNode(
 ): ThoughtTreeState {
   const current = assertNodeExists(state, input.conflictNodeId);
   if (current.type !== "conflict") {
-    throw new Error(`[GlassBox] Node "${input.conflictNodeId}" is not a conflict node.`);
+    throw new Error(`[Vitreous] Node "${input.conflictNodeId}" is not a conflict node.`);
   }
   if (!current.contenders.includes(input.chosenNodeId)) {
     throw new Error(
-      `[GlassBox] Chosen node "${input.chosenNodeId}" is not listed as a contender for conflict "${input.conflictNodeId}".`
+      `[Vitreous] Chosen node "${input.chosenNodeId}" is not listed as a contender for conflict "${input.conflictNodeId}".`
     );
   }
 
@@ -316,7 +316,7 @@ export function updateExecutionGate(
 ): ThoughtTreeState {
   const current = assertNodeExists(state, input.executionNodeId);
   if (current.type !== "execution") {
-    throw new Error(`[GlassBox] Node "${input.executionNodeId}" is not an execution node.`);
+    throw new Error(`[Vitreous] Node "${input.executionNodeId}" is not an execution node.`);
   }
 
   const decidedAt = input.decidedAt ?? getNextTimestamp(options);
@@ -364,14 +364,14 @@ function assertAcyclicNodes(nodesById: Readonly<Record<NodeId, ThoughtNode>>): v
       return;
     }
     if (visiting.has(nodeId)) {
-      throw new Error(`[GlassBox] Cycle detected at node "${nodeId}". ThoughtTree must remain acyclic.`);
+      throw new Error(`[Vitreous] Cycle detected at node "${nodeId}". ThoughtTree must remain acyclic.`);
     }
 
     visiting.add(nodeId);
     const node = nodesById[nodeId];
     for (const parentId of node.parents) {
       if (!nodesById[parentId]) {
-        throw new Error(`[GlassBox] Node "${nodeId}" references missing parent "${parentId}".`);
+        throw new Error(`[Vitreous] Node "${nodeId}" references missing parent "${parentId}".`);
       }
       visit(parentId);
     }
@@ -394,19 +394,19 @@ export function validateThoughtTreeState(state: ThoughtTreeState): void {
   for (const [branchId, branch] of Object.entries(state.branchesById)) {
     if (branch.parentBranchId && !branchIds.has(branch.parentBranchId)) {
       throw new Error(
-        `[GlassBox] Branch "${branchId}" references missing parent branch "${branch.parentBranchId}".`
+        `[Vitreous] Branch "${branchId}" references missing parent branch "${branch.parentBranchId}".`
       );
     }
     if (branch.forkedFromNodeId && !nodeIds.has(branch.forkedFromNodeId)) {
       throw new Error(
-        `[GlassBox] Branch "${branchId}" references missing fork node "${branch.forkedFromNodeId}".`
+        `[Vitreous] Branch "${branchId}" references missing fork node "${branch.forkedFromNodeId}".`
       );
     }
 
     for (const timelineNodeId of branch.timeline) {
       if (!nodeIds.has(timelineNodeId)) {
         throw new Error(
-          `[GlassBox] Branch "${branchId}" timeline references missing node "${timelineNodeId}".`
+          `[Vitreous] Branch "${branchId}" timeline references missing node "${timelineNodeId}".`
         );
       }
     }
@@ -415,7 +415,7 @@ export function validateThoughtTreeState(state: ThoughtTreeState): void {
   for (const edge of state.edges) {
     if (!nodeIds.has(edge.from) || !nodeIds.has(edge.to)) {
       throw new Error(
-        `[GlassBox] Edge "${edge.from}->${edge.to}" references one or more missing nodes.`
+        `[Vitreous] Edge "${edge.from}->${edge.to}" references one or more missing nodes.`
       );
     }
   }

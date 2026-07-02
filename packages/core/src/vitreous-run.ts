@@ -15,12 +15,12 @@ import {
   validateThoughtTreeState
 } from "./state-manager.js";
 import {
-  createGlassBoxEvent,
+  createVitreousEvent,
   eventToAddNodeInput,
   eventToConflictResolutionInput,
   eventToForkInput,
   eventToResolveConflictInput,
-  GLASSBOX_EVENT_SCHEMA_VERSION,
+  VITREOUS_EVENT_SCHEMA_VERSION,
   type ActionRequestedPayload,
   type ActionResolvedPayload,
   type BranchForkedPayload,
@@ -28,9 +28,9 @@ import {
   type ConflictDetectedPayload,
   type ConflictResolvedPayload,
   type DecisionMadePayload,
-  type GlassBoxEvent,
-  type GlassBoxEventInput,
-  type GlassBoxRunStatus,
+  type VitreousEvent,
+  type VitreousEventInput,
+  type VitreousRunStatus,
   type JsonObject,
   type RunCompletedPayload,
   type RunFailedPayload,
@@ -38,80 +38,80 @@ import {
   type SourceAddedPayload
 } from "./events.js";
 
-export type GlassBoxRunIdFactory = Readonly<{
+export type VitreousRunIdFactory = Readonly<{
   nextRunId: () => string;
   nextEventId: () => string;
 }>;
 
-export type GlassBoxRunOptions = Readonly<{
+export type VitreousRunOptions = Readonly<{
   idFactory?: ThoughtTreeIdFactory;
-  runIdFactory?: GlassBoxRunIdFactory;
+  runIdFactory?: VitreousRunIdFactory;
   now?: () => IsoDateTime;
 }>;
 
-export type CreateGlassBoxRunInput = Readonly<{
+export type CreateVitreousRunInput = Readonly<{
   runId?: string;
   title?: string;
   userId?: string;
   rootBranchId?: BranchId;
   metadata?: JsonObject;
-  events?: ReadonlyArray<GlassBoxEvent>;
+  events?: ReadonlyArray<VitreousEvent>;
   state?: ThoughtTreeState;
   skipStartEvent?: boolean;
 }>;
 
-export type GlassBoxSerializedRun = Readonly<{
-  schemaVersion: typeof GLASSBOX_EVENT_SCHEMA_VERSION;
+export type VitreousSerializedRun = Readonly<{
+  schemaVersion: typeof VITREOUS_EVENT_SCHEMA_VERSION;
   runId: string;
-  status: GlassBoxRunStatus;
+  status: VitreousRunStatus;
   state: ThoughtTreeState;
-  events: ReadonlyArray<GlassBoxEvent>;
+  events: ReadonlyArray<VitreousEvent>;
 }>;
 
 export type MaybePromise<T> = T | Promise<T>;
 
-export type GlassBoxPersistenceAdapter = Readonly<{
-  load: (runId?: string) => MaybePromise<GlassBoxSerializedRun | null>;
-  save: (run: GlassBoxSerializedRun) => MaybePromise<void>;
+export type VitreousPersistenceAdapter = Readonly<{
+  load: (runId?: string) => MaybePromise<VitreousSerializedRun | null>;
+  save: (run: VitreousSerializedRun) => MaybePromise<void>;
   clear?: (runId?: string) => MaybePromise<void>;
 }>;
 
-export type GlassBoxMutationResult = Readonly<{
-  event: GlassBoxEvent;
+export type VitreousMutationResult = Readonly<{
+  event: VitreousEvent;
   state: ThoughtTreeState;
   nodeId?: NodeId;
   branchId?: BranchId;
 }>;
 
-export type GlassBoxRunAPI = UseThoughtTreeAPI &
+export type VitreousRunAPI = UseThoughtTreeAPI &
   Readonly<{
     readonly runId: string;
-    readonly events: ReadonlyArray<GlassBoxEvent>;
-    readonly status: GlassBoxRunStatus;
-    ingestEvent: (event: GlassBoxEvent) => GlassBoxMutationResult;
-    recordSource: (input: SourceAddedPayload & Readonly<{ branchId?: BranchId }>) => GlassBoxMutationResult;
-    recordDecision: (input: DecisionMadePayload & Readonly<{ branchId?: BranchId }>) => GlassBoxMutationResult;
-    recordConflict: (input: ConflictDetectedPayload & Readonly<{ branchId?: BranchId }>) => GlassBoxMutationResult;
+    readonly events: ReadonlyArray<VitreousEvent>;
+    readonly status: VitreousRunStatus;
+    ingestEvent: (event: VitreousEvent) => VitreousMutationResult;
+    recordSource: (input: SourceAddedPayload & Readonly<{ branchId?: BranchId }>) => VitreousMutationResult;
+    recordDecision: (input: DecisionMadePayload & Readonly<{ branchId?: BranchId }>) => VitreousMutationResult;
+    recordConflict: (input: ConflictDetectedPayload & Readonly<{ branchId?: BranchId }>) => VitreousMutationResult;
     resolveRecordedConflict: (
       input: ConflictResolvedPayload & Readonly<{ branchId?: BranchId }>
-    ) => GlassBoxMutationResult;
+    ) => VitreousMutationResult;
     requestActionApproval: (
       input: ActionRequestedPayload & Readonly<{ branchId?: BranchId }>
-    ) => GlassBoxMutationResult;
+    ) => VitreousMutationResult;
     resolveActionApproval: (
       input: ActionResolvedPayload & Readonly<{ branchId?: BranchId }>
-    ) => GlassBoxMutationResult;
-    forkFromDecision: (input: BranchForkedPayload) => GlassBoxMutationResult;
-    completeRun: (input?: RunCompletedPayload) => GlassBoxMutationResult;
-    failRun: (input: RunFailedPayload) => GlassBoxMutationResult;
-    serialize: () => GlassBoxSerializedRun;
+    ) => VitreousMutationResult;
+    forkFromDecision: (input: BranchForkedPayload) => VitreousMutationResult;
+    completeRun: (input?: RunCompletedPayload) => VitreousMutationResult;
+    failRun: (input: RunFailedPayload) => VitreousMutationResult;
+    serialize: () => VitreousSerializedRun;
   }>;
 
 const nowIso = (): IsoDateTime => new Date().toISOString();
 
-export function createGlassBoxRunIdFactory(
+export function createVitreousRunIdFactory(
   seed: Readonly<{ runCounter?: number; eventCounter?: number }> = {}
-): GlassBoxRunIdFactory {
+): VitreousRunIdFactory {
   let runCounter = seed.runCounter ?? 0;
   let eventCounter = seed.eventCounter ?? 0;
 
@@ -132,16 +132,16 @@ function getLastTimelineNodeId(state: ThoughtTreeState, branchId: BranchId): Nod
   return timeline ? timeline[timeline.length - 1] : undefined;
 }
 
-function getReplayRootBranchId(events: ReadonlyArray<GlassBoxEvent>): BranchId {
+function getReplayRootBranchId(events: ReadonlyArray<VitreousEvent>): BranchId {
   const started = events.find((event) => event.type === "run.started");
   return started?.payload.rootBranchId ?? "branch-main";
 }
 
-function getReplayRunId(events: ReadonlyArray<GlassBoxEvent>): string {
+function getReplayRunId(events: ReadonlyArray<VitreousEvent>): string {
   return events[0]?.runId ?? "run-replay";
 }
 
-function getStatusAfterEvent(previous: GlassBoxRunStatus, event: GlassBoxEvent): GlassBoxRunStatus {
+function getStatusAfterEvent(previous: VitreousRunStatus, event: VitreousEvent): VitreousRunStatus {
   if (event.type === "run.started") {
     return "running";
   }
@@ -154,7 +154,7 @@ function getStatusAfterEvent(previous: GlassBoxRunStatus, event: GlassBoxEvent):
   return previous;
 }
 
-function withPayloadNodeId<TEvent extends GlassBoxEvent>(
+function withPayloadNodeId<TEvent extends VitreousEvent>(
   event: TEvent,
   nodeId: NodeId | undefined
 ): TEvent {
@@ -170,7 +170,7 @@ function withPayloadNodeId<TEvent extends GlassBoxEvent>(
   } as TEvent;
 }
 
-function withPayloadBranchId<TEvent extends GlassBoxEvent>(
+function withPayloadBranchId<TEvent extends VitreousEvent>(
   event: TEvent,
   branchId: BranchId | undefined
 ): TEvent {
@@ -186,14 +186,14 @@ function withPayloadBranchId<TEvent extends GlassBoxEvent>(
   } as TEvent;
 }
 
-function eventInputFor(input: GlassBoxEventInput): GlassBoxEventInput {
+function eventInputFor(input: VitreousEventInput): VitreousEventInput {
   return input;
 }
 
-export function replayGlassBoxEvents(
-  events: ReadonlyArray<GlassBoxEvent>,
-  options: GlassBoxRunOptions = {}
-): GlassBoxSerializedRun {
+export function replayVitreousEvents(
+  events: ReadonlyArray<VitreousEvent>,
+  options: VitreousRunOptions = {}
+): VitreousSerializedRun {
   const state = createEmptyThoughtTreeState(
     getReplayRootBranchId(events),
     events[0]?.timestamp ?? (options.now ? options.now() : nowIso())
@@ -203,7 +203,7 @@ export function replayGlassBoxEvents(
     idFactory: options.idFactory,
     now: () => mutationTimestamp
   });
-  let status: GlassBoxRunStatus = "idle";
+  let status: VitreousRunStatus = "idle";
 
   for (const event of events) {
     mutationTimestamp = event.timestamp;
@@ -212,7 +212,7 @@ export function replayGlassBoxEvents(
   }
 
   return {
-    schemaVersion: GLASSBOX_EVENT_SCHEMA_VERSION,
+    schemaVersion: VITREOUS_EVENT_SCHEMA_VERSION,
     runId: getReplayRunId(events),
     status,
     state: manager.state,
@@ -220,7 +220,7 @@ export function replayGlassBoxEvents(
   };
 }
 
-function applyEventToManager(manager: UseThoughtTreeAPI, event: GlassBoxEvent): ThoughtTreeState {
+function applyEventToManager(manager: UseThoughtTreeAPI, event: VitreousEvent): ThoughtTreeState {
   if (
     event.type === "source.added" ||
     event.type === "decision.made" ||
@@ -250,13 +250,13 @@ function applyEventToManager(manager: UseThoughtTreeAPI, event: GlassBoxEvent): 
   return manager.state;
 }
 
-export function createGlassBoxRun(
-  input: CreateGlassBoxRunInput = {},
-  options: GlassBoxRunOptions = {}
-): GlassBoxRunAPI {
+export function createVitreousRun(
+  input: CreateVitreousRunInput = {},
+  options: VitreousRunOptions = {}
+): VitreousRunAPI {
   if (!input.skipStartEvent && input.events && input.events.length > 0) {
-    const replayed = replayGlassBoxEvents(input.events, options);
-    return createGlassBoxRun(
+    const replayed = replayVitreousEvents(input.events, options);
+    return createVitreousRun(
       {
         runId: input.runId ?? replayed.runId,
         state: replayed.state,
@@ -267,7 +267,7 @@ export function createGlassBoxRun(
     );
   }
 
-  const runIdFactory = options.runIdFactory ?? createGlassBoxRunIdFactory();
+  const runIdFactory = options.runIdFactory ?? createVitreousRunIdFactory();
   const runId = input.runId ?? runIdFactory.nextRunId();
   const rootBranchId = input.rootBranchId ?? input.state?.rootBranchId ?? "branch-main";
   const initialTimestamp = input.state?.updatedAt ?? (options.now ? options.now() : nowIso());
@@ -284,17 +284,17 @@ export function createGlassBoxRun(
       now: () => mutationTimestamp
     }
   );
-  let events: ReadonlyArray<GlassBoxEvent> = input.events ?? [];
-  let status: GlassBoxRunStatus = events.reduce(getStatusAfterEvent, "idle" as GlassBoxRunStatus);
+  let events: ReadonlyArray<VitreousEvent> = input.events ?? [];
+  let status: VitreousRunStatus = events.reduce(getStatusAfterEvent, "idle" as VitreousRunStatus);
 
-  const createEvent = (eventInput: GlassBoxEventInput) =>
-    createGlassBoxEvent(eventInput, {
+  const createEvent = (eventInput: VitreousEventInput) =>
+    createVitreousEvent(eventInput, {
       runId,
       now: options.now,
       nextEventId: runIdFactory.nextEventId
     });
 
-  const appendEvent = (event: GlassBoxEvent, nodeId?: NodeId, branchId?: BranchId): GlassBoxMutationResult => {
+  const appendEvent = (event: VitreousEvent, nodeId?: NodeId, branchId?: BranchId): VitreousMutationResult => {
     events = [...events, event];
     status = getStatusAfterEvent(status, event);
     return {
@@ -305,7 +305,7 @@ export function createGlassBoxRun(
     };
   };
 
-  const ingestEvent = (event: GlassBoxEvent): GlassBoxMutationResult => {
+  const ingestEvent = (event: VitreousEvent): VitreousMutationResult => {
     const beforeActiveBranchId = manager.state.activeBranchId;
     mutationTimestamp = event.timestamp;
     const nextState = applyEventToManager(manager, event);
@@ -322,9 +322,9 @@ export function createGlassBoxRun(
   };
 
   const recordAdditiveEvent = (
-    eventInput: GlassBoxEventInput,
+    eventInput: VitreousEventInput,
     branchId: BranchId
-  ): GlassBoxMutationResult => {
+  ): VitreousMutationResult => {
     const provisionalEvent = createEvent(eventInput);
     mutationTimestamp = provisionalEvent.timestamp;
     const nextState = applyEventToManager(manager, provisionalEvent);
@@ -333,7 +333,7 @@ export function createGlassBoxRun(
     return appendEvent(event, nodeId, branchId);
   };
 
-  const api: GlassBoxRunAPI = {
+  const api: VitreousRunAPI = {
     get runId() {
       return runId;
     },
@@ -630,7 +630,7 @@ export function createGlassBoxRun(
       return appendEvent(event, undefined, branchId);
     },
     serialize: () => ({
-      schemaVersion: GLASSBOX_EVENT_SCHEMA_VERSION,
+      schemaVersion: VITREOUS_EVENT_SCHEMA_VERSION,
       runId,
       status,
       state: manager.state,

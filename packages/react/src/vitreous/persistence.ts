@@ -1,6 +1,6 @@
 "use client";
 
-import type { GlassBoxPersistenceAdapter, GlassBoxSerializedRun } from "@glassbox/core";
+import type { VitreousPersistenceAdapter, VitreousSerializedRun } from "@vitreous/core";
 
 function isBrowserStorageAvailable(): boolean {
   return typeof window !== "undefined" && Boolean(window.localStorage);
@@ -10,9 +10,9 @@ function getRunStorageKey(baseKey: string, runId: string): string {
   return `${baseKey}:run:${runId}`;
 }
 
-export function createInMemoryGlassBoxPersistence(
-  initialRuns: ReadonlyArray<GlassBoxSerializedRun> = []
-): GlassBoxPersistenceAdapter {
+export function createInMemoryVitreousPersistence(
+  initialRuns: ReadonlyArray<VitreousSerializedRun> = []
+): VitreousPersistenceAdapter {
   const runs = new Map(initialRuns.map((run) => [run.runId, run] as const));
   let latestRunId = initialRuns.at(-1)?.runId;
 
@@ -41,9 +41,9 @@ export function createInMemoryGlassBoxPersistence(
   };
 }
 
-export function createLocalStorageGlassBoxPersistence(
-  baseKey = "glassbox"
-): GlassBoxPersistenceAdapter {
+export function createLocalStorageVitreousPersistence(
+  baseKey = "vitreous"
+): VitreousPersistenceAdapter {
   const latestKey = `${baseKey}:latest`;
 
   return {
@@ -56,7 +56,7 @@ export function createLocalStorageGlassBoxPersistence(
         return null;
       }
       const raw = window.localStorage.getItem(getRunStorageKey(baseKey, resolvedRunId));
-      return raw ? (JSON.parse(raw) as GlassBoxSerializedRun) : null;
+      return raw ? (JSON.parse(raw) as VitreousSerializedRun) : null;
     },
     save: (run) => {
       if (!isBrowserStorageAvailable()) {

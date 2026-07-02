@@ -1,5 +1,5 @@
 {
-  "name": "@glassbox/docs",
+  "name": "@vitreous/docs",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@glassbox/theme": "workspace:*",
+    "@vitreous/theme": "workspace:*",
     "next": "16.2.4",
     "react": "19.2.4",
     "react-dom": "19.2.4"

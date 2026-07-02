@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { BranchId, CitationNode, ForkSteering, ThoughtNode } from "@glassbox/core";
+import type { BranchId, CitationNode, ForkSteering, ThoughtNode } from "@vitreous/core";
 import { useThoughtTree } from "../thought-tree/ThoughtTreeContext.js";
 import { DecisionModal, type DecisionModalStage } from "./DecisionModal.js";
 import { ExecutionNodeUI } from "./ExecutionNodeUI.js";

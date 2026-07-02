@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import type { ConflictNode, ThoughtNode } from "@glassbox/core";
+import type { ConflictNode, ThoughtNode } from "@vitreous/core";
 import { useThoughtTree } from "../thought-tree/ThoughtTreeContext.js";
 
 export type ConflictNodeUIProps = {

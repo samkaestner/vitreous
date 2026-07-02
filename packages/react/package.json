@@ -1,5 +1,5 @@
 {
-  "name": "@glassbox/react",
+  "name": "@vitreous/react",
   "version": "0.0.0",
   "private": false,
   "type": "module",
@@ -23,8 +23,8 @@
     "lint": "echo \"(no lint yet)\""
   },
   "dependencies": {
-    "@glassbox/core": "workspace:*",
-    "@glassbox/theme": "workspace:*",
+    "@vitreous/core": "workspace:*",
+    "@vitreous/theme": "workspace:*",
     "framer-motion": "^12.23.12"
   },
   "peerDependencies": {

@@ -6,11 +6,11 @@ import type {
   BranchId,
   ThoughtTreeState,
   UseThoughtTreeAPI
-} from "@glassbox/core";
+} from "@vitreous/core";
 import {
   createDeterministicIdFactory,
   createThoughtTreeStateManager
-} from "@glassbox/core";
+} from "@vitreous/core";
 
 export const ThoughtTreeContext = React.createContext<UseThoughtTreeAPI | null>(null);
 
@@ -41,7 +41,7 @@ export function ThoughtTreeProvider(props: ThoughtTreeProviderProps) {
     (execute: (manager: UseThoughtTreeAPI) => ThoughtTreeState): ThoughtTreeState => {
       const manager = managerRef.current;
       if (!manager) {
-        throw new Error("[GlassBox] ThoughtTree manager is not initialized.");
+        throw new Error("[Vitreous] ThoughtTree manager is not initialized.");
       }
       const nextState = execute(manager);
       setState(nextState);
@@ -92,7 +92,7 @@ export function ThoughtTreeProvider(props: ThoughtTreeProviderProps) {
   const getActiveBranch = React.useCallback(() => {
     const manager = managerRef.current;
     if (!manager) {
-      throw new Error("[GlassBox] ThoughtTree manager is not initialized.");
+      throw new Error("[Vitreous] ThoughtTree manager is not initialized.");
     }
     return manager.getActiveBranch();
   }, []);
@@ -100,7 +100,7 @@ export function ThoughtTreeProvider(props: ThoughtTreeProviderProps) {
   const getBranchTimeline = React.useCallback((branchId?: BranchId) => {
     const manager = managerRef.current;
     if (!manager) {
-      throw new Error("[GlassBox] ThoughtTree manager is not initialized.");
+      throw new Error("[Vitreous] ThoughtTree manager is not initialized.");
     }
     return manager.getBranchTimeline(branchId);
   }, []);
@@ -141,7 +141,7 @@ export function useThoughtTree(): UseThoughtTreeAPI {
   const context = React.useContext(ThoughtTreeContext);
   if (!context) {
     throw new Error(
-      "[GlassBox] useThoughtTree must be used within <ThoughtTreeProvider initialState={...}>."
+      "[Vitreous] useThoughtTree must be used within <ThoughtTreeProvider initialState={...}>."
     );
   }
   return context;

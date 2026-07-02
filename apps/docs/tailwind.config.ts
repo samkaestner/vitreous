@@ -1,8 +1,8 @@
 import type { Config } from "tailwindcss";
-import { glassboxTailwindPreset } from "@glassbox/theme/tailwind";
+import { vitreousTailwindPreset } from "@vitreous/theme/tailwind";
 
 const config: Config = {
-  presets: [glassboxTailwindPreset],
+  presets: [vitreousTailwindPreset],
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {}

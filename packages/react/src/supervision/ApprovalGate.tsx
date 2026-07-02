@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import type { ExecutionGateStatus, ExecutionNode } from "@glassbox/core";
-import { useGlassBox } from "../glassbox/GlassBoxContext.js";
+import type { ExecutionGateStatus, ExecutionNode } from "@vitreous/core";
+import { useVitreous } from "../vitreous/VitreousContext.js";
 
 export type ApprovalGateDecision = Exclude<ExecutionGateStatus, "pending">;
 
@@ -16,11 +16,11 @@ export type ApprovalGateProps = Readonly<{
 
 export function ApprovalGate(props: ApprovalGateProps) {
   const { nodeId, className, onApprove, onReject } = props;
-  const glassbox = useGlassBox();
+  const vitreous = useVitreous();
   const resolvedNode =
     props.node ??
-    (nodeId && glassbox.state.nodesById[nodeId]?.type === "execution"
-      ? glassbox.state.nodesById[nodeId]
+    (nodeId && vitreous.state.nodesById[nodeId]?.type === "execution"
+      ? vitreous.state.nodesById[nodeId]
       : undefined);
   const [isBusy, setIsBusy] = React.useState(false);
 
@@ -39,7 +39,7 @@ export function ApprovalGate(props: ApprovalGateProps) {
       } else {
         await onApprove?.(resolvedNode, status);
       }
-      glassbox.resolveActionApproval({
+      vitreous.resolveActionApproval({
         executionNodeId: resolvedNode.id,
         status,
         decidedBy: "user"

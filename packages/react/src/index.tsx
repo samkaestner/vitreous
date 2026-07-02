@@ -1,15 +1,15 @@
 export { ThoughtTreeProvider, useThoughtTree } from "./thought-tree/ThoughtTreeContext.js";
 export type { ThoughtTreeProviderProps } from "./thought-tree/ThoughtTreeContext.js";
-export { GlassBoxProvider, useGlassBox, useGlassBoxRun } from "./glassbox/GlassBoxContext.js";
+export { VitreousProvider, useVitreous, useVitreousRun } from "./vitreous/VitreousContext.js";
 export type {
-  GlassBoxContextValue,
-  GlassBoxProviderProps,
-  GlassBoxThemeConfig
-} from "./glassbox/GlassBoxContext.js";
+  VitreousContextValue,
+  VitreousProviderProps,
+  VitreousThemeConfig
+} from "./vitreous/VitreousContext.js";
 export {
-  createInMemoryGlassBoxPersistence,
-  createLocalStorageGlassBoxPersistence
-} from "./glassbox/persistence.js";
+  createInMemoryVitreousPersistence,
+  createLocalStorageVitreousPersistence
+} from "./vitreous/persistence.js";
 export { SpatialRail } from "./spatial-rail/SpatialRail.js";
 export type { SpatialRailProps } from "./spatial-rail/SpatialRail.js";
 export { ApprovalGate } from "./supervision/ApprovalGate.js";

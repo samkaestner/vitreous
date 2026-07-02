@@ -1,21 +1,21 @@
 import { describe, expect, it } from "vitest";
 import {
-  createGlassBoxRun,
-  createGlassBoxRunIdFactory,
-  replayGlassBoxEvents
-} from "./glassbox-run.js";
+  createVitreousRun,
+  createVitreousRunIdFactory,
+  replayVitreousEvents
+} from "./vitreous-run.js";
 
 function createTestRun() {
-  return createGlassBoxRun(
+  return createVitreousRun(
     { runId: "run-test", rootBranchId: "branch-main", title: "Test run" },
     {
-      runIdFactory: createGlassBoxRunIdFactory({ eventCounter: 0 }),
+      runIdFactory: createVitreousRunIdFactory({ eventCounter: 0 }),
       now: () => "2026-01-01T00:00:00.000Z"
     }
   );
 }
 
-describe("glassbox-run", () => {
+describe("vitreous-run", () => {
   it("records events and replays them into identical ThoughtTree state", () => {
     const run = createTestRun();
     const source = run.recordSource({
@@ -56,7 +56,7 @@ describe("glassbox-run", () => {
     run.switchBranch("branch-main");
     run.completeRun({ summary: "Completed" });
 
-    const replayed = replayGlassBoxEvents(run.events, {
+    const replayed = replayVitreousEvents(run.events, {
       now: () => "2026-01-01T00:00:00.000Z"
     });
 
@@ -126,7 +126,7 @@ describe("glassbox-run", () => {
     });
 
     const serialized = JSON.parse(JSON.stringify(run.serialize()));
-    const restored = createGlassBoxRun({
+    const restored = createVitreousRun({
       events: serialized.events
     });
 

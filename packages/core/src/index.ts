@@ -40,11 +40,11 @@ export type {
   ConflictResolvedPayload,
   DecisionMadeEvent,
   DecisionMadePayload,
-  GlassBoxEvent,
-  GlassBoxEventInput,
-  GlassBoxEventSchemaVersion,
-  GlassBoxEventType,
-  GlassBoxRunStatus,
+  VitreousEvent,
+  VitreousEventInput,
+  VitreousEventSchemaVersion,
+  VitreousEventType,
+  VitreousRunStatus,
   JsonObject,
   JsonPrimitive,
   JsonValue,
@@ -58,15 +58,15 @@ export type {
   SourceAddedPayload
 } from "./events.js";
 export type {
-  CreateGlassBoxRunInput,
-  GlassBoxMutationResult,
-  GlassBoxPersistenceAdapter,
-  GlassBoxRunAPI,
-  GlassBoxRunIdFactory,
-  GlassBoxRunOptions,
-  GlassBoxSerializedRun
-} from "./glassbox-run.js";
-export type { GlassBoxPrivacyHooks } from "./privacy.js";
+  CreateVitreousRunInput,
+  VitreousMutationResult,
+  VitreousPersistenceAdapter,
+  VitreousRunAPI,
+  VitreousRunIdFactory,
+  VitreousRunOptions,
+  VitreousSerializedRun
+} from "./vitreous-run.js";
+export type { VitreousPrivacyHooks } from "./privacy.js";
 export {
   addNodeToThoughtTree,
   createDeterministicIdFactory,
@@ -80,18 +80,18 @@ export {
   validateThoughtTreeState
 } from "./state-manager.js";
 export {
-  createGlassBoxEvent,
+  createVitreousEvent,
   eventToAddNodeInput,
   eventToConflictResolutionInput,
   eventToForkInput,
   eventToResolveConflictInput,
-  GLASSBOX_EVENT_SCHEMA_VERSION
+  VITREOUS_EVENT_SCHEMA_VERSION
 } from "./events.js";
 export {
-  createGlassBoxRun,
-  createGlassBoxRunIdFactory,
-  replayGlassBoxEvents
-} from "./glassbox-run.js";
+  createVitreousRun,
+  createVitreousRunIdFactory,
+  replayVitreousEvents
+} from "./vitreous-run.js";
 export {
   applyEventRedaction,
   redactEvent,

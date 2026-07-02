@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { SpatialRail, useGlassBox } from "@glassbox/react";
-import type { DecisionNode, ExecutionNode } from "@glassbox/core";
-import { askGlassBox, askGlassBoxContinuation } from "./actions";
+import { SpatialRail, useVitreous } from "@vitreous/react";
+import type { DecisionNode, ExecutionNode } from "@vitreous/core";
+import { askVitreous, askVitreousContinuation } from "./actions";
 
 type Message = {
   id: string;
@@ -23,7 +23,7 @@ export function LLMOrchestrator() {
     requestActionApproval,
     state,
     status
-  } = useGlassBox();
+  } = useVitreous();
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -141,7 +141,7 @@ export function LLMOrchestrator() {
       }]);
 
       // Use the dedicated continuation action (decision-only, no conflict loop)
-      const result = await askGlassBoxContinuation(
+      const result = await askVitreousContinuation(
         lastQueryRef.current,
         chosenLabel,
         conflictDescription
@@ -232,7 +232,7 @@ export function LLMOrchestrator() {
     const userPromptNodeId = userPrompt.nodeId;
 
     try {
-      const result = await askGlassBox(query);
+      const result = await askVitreous(query);
       setMode(result.mode ?? "live");
 
       const citationIds: string[] = [];
@@ -314,7 +314,7 @@ export function LLMOrchestrator() {
               <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4">
                  <svg className="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
               </div>
-              <h2 className="text-xl font-medium text-white">Glass Box Orchestrator</h2>
+              <h2 className="text-xl font-medium text-white">Vitreous Orchestrator</h2>
               <p className="text-sm mt-2 max-w-xs">Ask a question about your endurance studies to begin the reasoning chain.</p>
               <button
                 type="button"

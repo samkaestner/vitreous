@@ -4,59 +4,59 @@ import * as React from "react";
 import type {
   AddNodeInput,
   BranchId,
-  GlassBoxEvent,
+  VitreousEvent,
   ForkAtNodeInput,
-  GlassBoxMutationResult,
-  GlassBoxPersistenceAdapter,
-  GlassBoxPrivacyHooks,
-  GlassBoxRunAPI,
-  GlassBoxSerializedRun,
+  VitreousMutationResult,
+  VitreousPersistenceAdapter,
+  VitreousPrivacyHooks,
+  VitreousRunAPI,
+  VitreousSerializedRun,
   ResolveConflictInput,
   ThoughtNode,
   ThoughtTreeState,
   UpdateExecutionGateInput
-} from "@glassbox/core";
+} from "@vitreous/core";
 import {
   applyEventRedaction,
-  createGlassBoxRun,
-  replayGlassBoxEvents
-} from "@glassbox/core";
+  createVitreousRun,
+  replayVitreousEvents
+} from "@vitreous/core";
 import { ThoughtTreeContext } from "../thought-tree/ThoughtTreeContext.js";
 
-export type GlassBoxThemeConfig = Readonly<{
+export type VitreousThemeConfig = Readonly<{
   mode?: "dark" | "light" | "system";
   accent?: string;
 }>;
 
-export type GlassBoxProviderProps = Readonly<{
+export type VitreousProviderProps = Readonly<{
   children: React.ReactNode;
   runId?: string;
   title?: string;
   userId?: string;
   initialState?: ThoughtTreeState;
-  initialEvents?: ReadonlyArray<GlassBoxEvent>;
-  persistence?: GlassBoxPersistenceAdapter;
-  privacy?: GlassBoxPrivacyHooks;
-  theme?: GlassBoxThemeConfig;
+  initialEvents?: ReadonlyArray<VitreousEvent>;
+  persistence?: VitreousPersistenceAdapter;
+  privacy?: VitreousPrivacyHooks;
+  theme?: VitreousThemeConfig;
 }>;
 
-export type GlassBoxContextValue = GlassBoxRunAPI &
+export type VitreousContextValue = VitreousRunAPI &
   Readonly<{
-    theme?: GlassBoxThemeConfig;
-    privacy?: GlassBoxPrivacyHooks;
-    snapshot: GlassBoxSerializedRun;
+    theme?: VitreousThemeConfig;
+    privacy?: VitreousPrivacyHooks;
+    snapshot: VitreousSerializedRun;
   }>;
 
-const GlassBoxContext = React.createContext<GlassBoxContextValue | null>(null);
+const VitreousContext = React.createContext<VitreousContextValue | null>(null);
 
 function isPromiseLike<T>(value: T | Promise<T>): value is Promise<T> {
   return Boolean(value && typeof (value as Promise<T>).then === "function");
 }
 
 function serializeForPersistence(
-  snapshot: GlassBoxSerializedRun,
-  privacy?: GlassBoxPrivacyHooks
-): GlassBoxSerializedRun {
+  snapshot: VitreousSerializedRun,
+  privacy?: VitreousPrivacyHooks
+): VitreousSerializedRun {
   if (!privacy?.redactEvent) {
     return snapshot;
   }
@@ -66,7 +66,7 @@ function serializeForPersistence(
 
   try {
     return {
-      ...replayGlassBoxEvents(events),
+      ...replayVitreousEvents(events),
       runId: snapshot.runId
     };
   } catch {
@@ -77,13 +77,13 @@ function serializeForPersistence(
   }
 }
 
-function createRunFromProps(props: GlassBoxProviderProps): GlassBoxRunAPI {
+function createRunFromProps(props: VitreousProviderProps): VitreousRunAPI {
   const loaded = props.persistence?.load(props.runId);
   if (loaded && !isPromiseLike(loaded)) {
-    return createGlassBoxRun({ runId: props.runId, events: loaded.events });
+    return createVitreousRun({ runId: props.runId, events: loaded.events });
   }
 
-  return createGlassBoxRun({
+  return createVitreousRun({
     runId: props.runId,
     title: props.title,
     userId: props.userId,
@@ -92,9 +92,9 @@ function createRunFromProps(props: GlassBoxProviderProps): GlassBoxRunAPI {
   });
 }
 
-export function GlassBoxProvider(props: GlassBoxProviderProps) {
+export function VitreousProvider(props: VitreousProviderProps) {
   const { children, persistence, privacy, theme, runId } = props;
-  const runRef = React.useRef<GlassBoxRunAPI | null>(null);
+  const runRef = React.useRef<VitreousRunAPI | null>(null);
 
   if (!runRef.current) {
     runRef.current = createRunFromProps(props);
@@ -103,14 +103,14 @@ export function GlassBoxProvider(props: GlassBoxProviderProps) {
   const [snapshot, setSnapshot] = React.useState(() => runRef.current!.serialize());
 
   const persistSnapshot = React.useCallback(
-    (nextSnapshot: GlassBoxSerializedRun) => {
+    (nextSnapshot: VitreousSerializedRun) => {
       if (!persistence) {
         return;
       }
       const maybeSave = persistence.save(serializeForPersistence(nextSnapshot, privacy));
       if (isPromiseLike(maybeSave)) {
         void maybeSave.catch((error) => {
-          console.error("[GlassBox] Failed to persist run.", error);
+          console.error("[Vitreous] Failed to persist run.", error);
         });
       }
     },
@@ -118,10 +118,10 @@ export function GlassBoxProvider(props: GlassBoxProviderProps) {
   );
 
   const commit = React.useCallback(
-    <T,>(execute: (run: GlassBoxRunAPI) => T): T => {
+    <T,>(execute: (run: VitreousRunAPI) => T): T => {
       const run = runRef.current;
       if (!run) {
-        throw new Error("[GlassBox] GlassBox run is not initialized.");
+        throw new Error("[Vitreous] Vitreous run is not initialized.");
       }
       const result = execute(run);
       const nextSnapshot = run.serialize();
@@ -143,24 +143,24 @@ export function GlassBoxProvider(props: GlassBoxProviderProps) {
         if (cancelled || !serialized) {
           return;
         }
-        runRef.current = createGlassBoxRun({
+        runRef.current = createVitreousRun({
           runId: serialized.runId,
           events: serialized.events
         });
         setSnapshot(runRef.current.serialize());
       })
       .catch((error) => {
-        console.error("[GlassBox] Failed to load persisted run.", error);
+        console.error("[Vitreous] Failed to load persisted run.", error);
       });
     return () => {
       cancelled = true;
     };
   }, [persistence, runId]);
 
-  const api = React.useMemo<GlassBoxContextValue>(() => {
+  const api = React.useMemo<VitreousContextValue>(() => {
     const run = runRef.current;
     if (!run) {
-      throw new Error("[GlassBox] GlassBox run is not initialized.");
+      throw new Error("[Vitreous] Vitreous run is not initialized.");
     }
 
     return {
@@ -212,25 +212,25 @@ export function GlassBoxProvider(props: GlassBoxProviderProps) {
   }, [commit, privacy, snapshot, theme]);
 
   return (
-    <GlassBoxContext.Provider value={api}>
+    <VitreousContext.Provider value={api}>
       <ThoughtTreeContext.Provider value={api}>{children}</ThoughtTreeContext.Provider>
-    </GlassBoxContext.Provider>
+    </VitreousContext.Provider>
   );
 }
 
-export function useGlassBox(): GlassBoxContextValue {
-  const context = React.useContext(GlassBoxContext);
+export function useVitreous(): VitreousContextValue {
+  const context = React.useContext(VitreousContext);
   if (!context) {
-    throw new Error("[GlassBox] useGlassBox must be used within <GlassBoxProvider>.");
+    throw new Error("[Vitreous] useVitreous must be used within <VitreousProvider>.");
   }
   return context;
 }
 
-export function useGlassBoxRun(runId?: string): GlassBoxContextValue {
-  const context = useGlassBox();
+export function useVitreousRun(runId?: string): VitreousContextValue {
+  const context = useVitreous();
   if (runId && context.runId !== runId) {
     throw new Error(
-      `[GlassBox] Requested run "${runId}" but the active provider is scoped to "${context.runId}".`
+      `[Vitreous] Requested run "${runId}" but the active provider is scoped to "${context.runId}".`
     );
   }
   return context;

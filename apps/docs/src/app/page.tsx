@@ -8,7 +8,7 @@ export default function Home() {
     <main className="mx-auto max-w-5xl px-6 py-16 sm:px-8 sm:py-24">
       <header className="max-w-3xl">
         <div className="text-xs font-medium uppercase tracking-[0.24em] text-white/45">
-          GlassBox SDK
+          Vitreous SDK
         </div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white sm:text-6xl">
           End-user supervision for production AI apps.
@@ -16,7 +16,7 @@ export default function Home() {
         <p className="mt-5 text-lg leading-8 text-white/64">
           Instrument an AI workflow once, then render provenance, decisions,
           conflicts, approval gates, branches, and audit history anywhere in
-          your product. GlassBox exposes safe supervision summaries, not raw
+          your product. Vitreous exposes safe supervision summaries, not raw
           chain-of-thought.
         </p>
       </header>
@@ -41,7 +41,7 @@ export default function Home() {
         <div className="flex items-end justify-between gap-6">
           <div>
             <h2 className="text-2xl font-semibold tracking-tight text-white">
-              Add GlassBox in 15 minutes
+              Add Vitreous in 15 minutes
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">
               Start with the React provider and the rail. Persistence is local
@@ -54,21 +54,21 @@ export default function Home() {
         <div className="mt-6 overflow-hidden rounded-[1rem] border border-white/12 bg-[#111318] p-6">
           <pre className="overflow-x-auto text-sm leading-6 text-white/78">
             <code>{`import {
-  GlassBoxProvider,
+  VitreousProvider,
   SpatialRail,
-  createLocalStorageGlassBoxPersistence
-} from "@glassbox/react";
+  createLocalStorageVitreousPersistence
+} from "@vitreous/react";
 
-const persistence = createLocalStorageGlassBoxPersistence("my-app:glassbox");
+const persistence = createLocalStorageVitreousPersistence("my-app:vitreous");
 
 export function App() {
   return (
-    <GlassBoxProvider runId="customer-session-42" persistence={persistence}>
+    <VitreousProvider runId="customer-session-42" persistence={persistence}>
       <main>{/* your AI product UI */}</main>
       <aside>
         <SpatialRail />
       </aside>
-    </GlassBoxProvider>
+    </VitreousProvider>
   );
 }`}</code>
           </pre>
@@ -81,7 +81,7 @@ export function App() {
             Instrument the workflow
           </h2>
           <p className="mt-3 text-sm leading-6 text-white/60">
-            GlassBox records an append-only event log and rebuilds the DAG from
+            Vitreous records an append-only event log and rebuilds the DAG from
             that log. Your app can keep using normal model and tool APIs; it
             just records supervision events at the moments users care about.
           </p>
@@ -107,9 +107,9 @@ export function App() {
 
         <div className="overflow-hidden rounded-[1rem] border border-white/12 bg-[#111318] p-6">
           <pre className="overflow-x-auto text-sm leading-6 text-white/78">
-            <code>{`const glassbox = useGlassBox();
+            <code>{`const vitreous = useVitreous();
 
-const source = glassbox.recordSource({
+const source = vitreous.recordSource({
   source: {
     kind: "url",
     uri: "https://example.com/policy",
@@ -118,13 +118,13 @@ const source = glassbox.recordSource({
   excerpt: "Refunds require manager approval."
 });
 
-const decision = glassbox.recordDecision({
+const decision = vitreous.recordDecision({
   claim: "This refund needs approval.",
   confidence: 0.86,
   provenance: [source.nodeId]
 });
 
-glassbox.requestActionApproval({
+vitreous.requestActionApproval({
   action: {
     kind: "refund.create",
     payload: { orderId, amount },
@@ -168,7 +168,7 @@ glassbox.requestActionApproval({
         <div className="mt-5 grid gap-5 md:grid-cols-2">
           <p className="text-sm leading-6 text-white/60">
             <strong className="text-white/86">Replayable:</strong> every run is
-            represented by versioned <code className={codeClass}>GlassBoxEvent</code>
+            represented by versioned <code className={codeClass}>VitreousEvent</code>
             records that can rebuild <code className={codeClass}>ThoughtTreeState</code>.
           </p>
           <p className="text-sm leading-6 text-white/60">

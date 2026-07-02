@@ -8,14 +8,14 @@ export default function NodeModelPage() {
           The Node Model
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-white/60">
-          Understanding the supervision nodes that rebuild from the append-only <code className="font-mono text-[#e0bc78]">GlassBoxEvent</code> log.
+          Understanding the supervision nodes that rebuild from the append-only <code className="font-mono text-[#e0bc78]">VitreousEvent</code> log.
         </p>
       </header>
 
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold tracking-tight text-white">Overview</h2>
         <p className="text-base leading-relaxed text-white/70">
-          GlassBox uses a directed acyclic graph (DAG) to represent safe, user-facing
+          Vitreous uses a directed acyclic graph (DAG) to represent safe, user-facing
           supervision state: evidence, decisions, action gates, conflicts, and branches.
           It does not expose raw chain-of-thought. The graph is rebuilt from versioned
           events so host apps can persist, replay, and audit user-visible AI behavior.

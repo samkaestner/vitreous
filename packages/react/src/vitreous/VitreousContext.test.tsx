@@ -3,33 +3,33 @@
 import * as React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { createGlassBoxRun, type GlassBoxSerializedRun } from "@glassbox/core";
+import { createVitreousRun, type VitreousSerializedRun } from "@vitreous/core";
 import { useThoughtTree } from "../thought-tree/ThoughtTreeContext.js";
 import { ApprovalGate } from "../supervision/ApprovalGate.js";
 import { ConflictResolver } from "../supervision/ConflictResolver.js";
-import { GlassBoxProvider, useGlassBox } from "./GlassBoxContext.js";
-import { createInMemoryGlassBoxPersistence } from "./persistence.js";
+import { VitreousProvider, useVitreous } from "./VitreousContext.js";
+import { createInMemoryVitreousPersistence } from "./persistence.js";
 
-function GlassBoxProbe() {
-  const glassbox = useGlassBox();
+function VitreousProbe() {
+  const vitreous = useVitreous();
   const thoughtTree = useThoughtTree();
 
   return (
     <div>
-      <div data-testid="run-id">{glassbox.runId}</div>
-      <div data-testid="event-count">{glassbox.events.length}</div>
+      <div data-testid="run-id">{vitreous.runId}</div>
+      <div data-testid="event-count">{vitreous.events.length}</div>
       <div data-testid="timeline-size">{thoughtTree.getBranchTimeline().length}</div>
       <button
         type="button"
         onClick={() => {
-          const source = glassbox.recordSource({
+          const source = vitreous.recordSource({
             source: {
               kind: "url",
               uri: "https://example.com/source",
               domain: "example.com"
             }
           });
-          glassbox.recordDecision({
+          vitreous.recordDecision({
             claim: "Visible supervision decision",
             confidence: 0.87,
             provenance: [source.nodeId!]
@@ -43,7 +43,7 @@ function GlassBoxProbe() {
 }
 
 function makeActionRun() {
-  const run = createGlassBoxRun({ runId: "run-action" });
+  const run = createVitreousRun({ runId: "run-action" });
   const action = run.requestActionApproval({
     action: {
       kind: "tool.send",
@@ -56,7 +56,7 @@ function makeActionRun() {
 }
 
 function makeConflictRun() {
-  const run = createGlassBoxRun({ runId: "run-conflict" });
+  const run = createVitreousRun({ runId: "run-conflict" });
   const first = run.recordSource({
     source: {
       kind: "file",
@@ -80,14 +80,14 @@ function makeConflictRun() {
   return { events: run.events, conflictId: conflict.nodeId! };
 }
 
-describe("GlassBoxProvider", () => {
+describe("VitreousProvider", () => {
   it("exposes event-backed run APIs and persists snapshots", () => {
-    const persistence = createInMemoryGlassBoxPersistence();
+    const persistence = createInMemoryVitreousPersistence();
 
     render(
-      <GlassBoxProvider runId="run-ui" persistence={persistence}>
-        <GlassBoxProbe />
-      </GlassBoxProvider>
+      <VitreousProvider runId="run-ui" persistence={persistence}>
+        <VitreousProbe />
+      </VitreousProvider>
     );
 
     expect(screen.getByTestId("run-id").textContent).toBe("run-ui");
@@ -97,7 +97,7 @@ describe("GlassBoxProvider", () => {
 
     expect(screen.getByTestId("timeline-size").textContent).toBe("2");
     expect(screen.getByTestId("event-count").textContent).toBe("3");
-    const saved = persistence.load("run-ui") as GlassBoxSerializedRun | null;
+    const saved = persistence.load("run-ui") as VitreousSerializedRun | null;
     expect(saved?.events).toHaveLength(3);
   });
 
@@ -106,9 +106,9 @@ describe("GlassBoxProvider", () => {
     const onApprove = vi.fn();
 
     render(
-      <GlassBoxProvider initialEvents={events}>
+      <VitreousProvider initialEvents={events}>
         <ApprovalGate nodeId={actionId} onApprove={onApprove} />
-      </GlassBoxProvider>
+      </VitreousProvider>
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Allow once" }));
@@ -124,9 +124,9 @@ describe("GlassBoxProvider", () => {
     const onResolve = vi.fn();
 
     render(
-      <GlassBoxProvider initialEvents={events}>
+      <VitreousProvider initialEvents={events}>
         <ConflictResolver nodeId={conflictId} onResolve={onResolve} />
-      </GlassBoxProvider>
+      </VitreousProvider>
     );
 
     fireEvent.click(screen.getByRole("button", { name: /a.md/ }));

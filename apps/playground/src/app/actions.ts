@@ -3,7 +3,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { GoogleGenAI, Type, Schema } from "@google/genai";
-import type { AddNodeInput } from "@glassbox/core";
+import type { AddNodeInput } from "@vitreous/core";
 import {
   REPLAY_LATENCY_MS,
   demoContinuationResponse,
@@ -16,7 +16,7 @@ const ai = new GoogleGenAI({}); // Relies on GEMINI_API_KEY env var
 // responses instead of calling the model. The supervision flow on the client
 // is identical — only the LLM is canned. This is what the hosted demo runs.
 const isReplayMode = () =>
-  process.env.GLASSBOX_DEMO_MODE === "1" || !process.env.GEMINI_API_KEY;
+  process.env.VITREOUS_DEMO_MODE === "1" || !process.env.GEMINI_API_KEY;
 
 const simulateModelLatency = () =>
   new Promise((resolve) => setTimeout(resolve, REPLAY_LATENCY_MS));
@@ -71,7 +71,7 @@ const responseSchema: Schema = {
   required: ["nodeType"]
 };
 
-export async function askGlassBox(query: string) {
+export async function askVitreous(query: string) {
   // 1. Read local .md files
   const dataDir = path.join(process.cwd(), "src/data");
   let files: string[] = [];
@@ -176,7 +176,7 @@ const continuationSchema: Schema = {
   required: ["nodeType", "decisionPayload"]
 };
 
-export async function askGlassBoxContinuation(
+export async function askVitreousContinuation(
   originalQuery: string,
   chosenLabel: string,
   conflictDescription: string

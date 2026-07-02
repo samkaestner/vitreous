@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Glass Box UI Framework",
+  title: "Vitreous UI Framework",
   description: "A UX-first React component library for visualizing probabilistic AI systems.",
 };
 

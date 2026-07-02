@@ -1,11 +1,11 @@
-import type { GlassBoxEvent } from "./events.js";
+import type { VitreousEvent } from "./events.js";
 import type { ThoughtNode } from "./nodes.js";
 
-export type GlassBoxPrivacyHooks<TViewer = unknown, TRawTrace = unknown> = Readonly<{
+export type VitreousPrivacyHooks<TViewer = unknown, TRawTrace = unknown> = Readonly<{
   /**
    * Return a sanitized event for persistence/transmission, or null to omit it.
    */
-  redactEvent?: (event: GlassBoxEvent) => GlassBoxEvent | null;
+  redactEvent?: (event: VitreousEvent) => VitreousEvent | null;
   /**
    * Gate whether a node should be visible to a viewer in UI surfaces.
    */
@@ -16,7 +16,7 @@ export type GlassBoxPrivacyHooks<TViewer = unknown, TRawTrace = unknown> = Reado
   summarizeForUser?: (rawModelTrace: TRawTrace) => string;
 }>;
 
-export function redactEvent(event: GlassBoxEvent): GlassBoxEvent {
+export function redactEvent(event: VitreousEvent): VitreousEvent {
   return event;
 }
 
@@ -32,8 +32,8 @@ export function summarizeForUser(rawModelTrace: unknown): string {
 }
 
 export function applyEventRedaction(
-  event: GlassBoxEvent,
-  hooks: GlassBoxPrivacyHooks = {}
-): GlassBoxEvent | null {
+  event: VitreousEvent,
+  hooks: VitreousPrivacyHooks = {}
+): VitreousEvent | null {
   return hooks.redactEvent ? hooks.redactEvent(event) : redactEvent(event);
 }

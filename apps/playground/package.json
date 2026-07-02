@@ -1,5 +1,5 @@
 {
-  "name": "@glassbox/playground",
+  "name": "@vitreous/playground",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,9 +10,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@glassbox/core": "workspace:*",
-    "@glassbox/react": "workspace:*",
-    "@glassbox/theme": "workspace:*",
+    "@vitreous/core": "workspace:*",
+    "@vitreous/react": "workspace:*",
+    "@vitreous/theme": "workspace:*",
     "@google/genai": "^2.0.0",
     "next": "16.2.4",
     "react": "19.2.4",

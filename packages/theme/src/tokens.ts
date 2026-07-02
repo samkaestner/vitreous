@@ -1,4 +1,4 @@
-export type GlassBoxTokens = {
+export type VitreousTokens = {
   color: {
     rail: {
       bg: string;
@@ -39,7 +39,7 @@ export type GlassBoxTokens = {
   };
 };
 
-export const tokens: GlassBoxTokens = {
+export const tokens: VitreousTokens = {
   color: {
     rail: {
       bg: "#0b0f19",

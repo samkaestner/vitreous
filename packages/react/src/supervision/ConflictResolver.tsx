@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import type { ConflictNode, ThoughtNode } from "@glassbox/core";
-import { useGlassBox } from "../glassbox/GlassBoxContext.js";
+import type { ConflictNode, ThoughtNode } from "@vitreous/core";
+import { useVitreous } from "../vitreous/VitreousContext.js";
 
 export type ConflictResolverProps = Readonly<{
   node?: ConflictNode;
@@ -39,11 +39,11 @@ function getContenderDetail(node: ThoughtNode): string {
 
 export function ConflictResolver(props: ConflictResolverProps) {
   const { nodeId, className, onResolve } = props;
-  const glassbox = useGlassBox();
+  const vitreous = useVitreous();
   const resolvedNode =
     props.node ??
-    (nodeId && glassbox.state.nodesById[nodeId]?.type === "conflict"
-      ? glassbox.state.nodesById[nodeId]
+    (nodeId && vitreous.state.nodesById[nodeId]?.type === "conflict"
+      ? vitreous.state.nodesById[nodeId]
       : undefined);
   const [isBusy, setIsBusy] = React.useState(false);
 
@@ -52,7 +52,7 @@ export function ConflictResolver(props: ConflictResolverProps) {
   }
 
   const contenders = resolvedNode.contenders
-    .map((contenderId) => glassbox.state.nodesById[contenderId])
+    .map((contenderId) => vitreous.state.nodesById[contenderId])
     .filter((node): node is ThoughtNode => Boolean(node));
 
   const resolve = async (chosen: ThoughtNode) => {
@@ -62,7 +62,7 @@ export function ConflictResolver(props: ConflictResolverProps) {
     setIsBusy(true);
     try {
       await onResolve?.(resolvedNode, chosen);
-      glassbox.resolveRecordedConflict({
+      vitreous.resolveRecordedConflict({
         conflictNodeId: resolvedNode.id,
         chosenNodeId: chosen.id
       });

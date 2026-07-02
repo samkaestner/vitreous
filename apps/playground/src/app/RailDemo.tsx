@@ -2,24 +2,24 @@
 
 import * as React from "react";
 import {
-  GlassBoxProvider,
-  createLocalStorageGlassBoxPersistence
-} from "@glassbox/react";
+  VitreousProvider,
+  createLocalStorageVitreousPersistence
+} from "@vitreous/react";
 import { LLMOrchestrator } from "./LLMOrchestrator";
 
 export function RailDemo() {
   const persistence = React.useMemo(
-    () => createLocalStorageGlassBoxPersistence("glassbox:playground"),
+    () => createLocalStorageVitreousPersistence("vitreous:playground"),
     []
   );
 
   return (
-    <GlassBoxProvider
+    <VitreousProvider
       runId="playground-demo"
-      title="GlassBox playground"
+      title="Vitreous playground"
       persistence={persistence}
     >
       <LLMOrchestrator />
-    </GlassBoxProvider>
+    </VitreousProvider>
   );
 }

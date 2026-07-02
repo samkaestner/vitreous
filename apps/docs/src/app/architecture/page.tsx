@@ -25,7 +25,7 @@ export default function ArchitecturePage() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold tracking-tight text-white">Immutability & The DAG</h2>
         <p className="text-base leading-relaxed text-white/70">
-          In GlassBox, user-visible supervision state is an immutable Directed Acyclic Graph (DAG). 
+          In Vitreous, user-visible supervision state is an immutable Directed Acyclic Graph (DAG). 
           When a user corrects an AI mistake or decides to steer the assistant in a different direction, 
           <strong>history is never rewritten</strong>.
         </p>
@@ -39,13 +39,13 @@ export default function ArchitecturePage() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold tracking-tight text-white">Append-only Events</h2>
         <p className="text-base leading-relaxed text-white/70">
-          Production apps record versioned <code className="font-mono text-[#e0bc78] bg-white/5 px-1.5 rounded text-sm">GlassBoxEvent</code> objects:
+          Production apps record versioned <code className="font-mono text-[#e0bc78] bg-white/5 px-1.5 rounded text-sm">VitreousEvent</code> objects:
           source added, decision made, conflict detected, action requested, branch forked, branch switched,
           run completed, and run failed. Replaying those events rebuilds the same <code className="font-mono text-[#e0bc78] bg-white/5 px-1.5 rounded text-sm">ThoughtTreeState</code>.
         </p>
         <p className="text-base leading-relaxed text-white/70">
           This keeps persistence simple. Teams can store the event log locally or in their own backend,
-          then hydrate <code className="font-mono text-[#e0bc78] bg-white/5 px-1.5 rounded text-sm">&lt;GlassBoxProvider /&gt;</code>
+          then hydrate <code className="font-mono text-[#e0bc78] bg-white/5 px-1.5 rounded text-sm">&lt;VitreousProvider /&gt;</code>
           without adopting a hosted service.
         </p>
       </section>

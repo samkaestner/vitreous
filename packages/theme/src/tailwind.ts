@@ -2,11 +2,11 @@ import type { Config } from "tailwindcss";
 import { tokens } from "./tokens.js";
 
 /**
- * Tailwind preset for Glass Box.
+ * Tailwind preset for Vitreous.
  * Consumers can include it in their Tailwind config via:
- * `presets: [glassboxTailwindPreset]`
+ * `presets: [vitreousTailwindPreset]`
  */
-export const glassboxTailwindPreset: Pick<Config, "theme"> = {
+export const vitreousTailwindPreset: Pick<Config, "theme"> = {
   theme: {
     extend: {
       borderRadius: {

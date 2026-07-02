@@ -13,17 +13,17 @@ import type {
   NodeId
 } from "./nodes.js";
 
-export const GLASSBOX_EVENT_SCHEMA_VERSION = 1;
+export const VITREOUS_EVENT_SCHEMA_VERSION = 1;
 
-export type GlassBoxEventSchemaVersion = typeof GLASSBOX_EVENT_SCHEMA_VERSION;
+export type VitreousEventSchemaVersion = typeof VITREOUS_EVENT_SCHEMA_VERSION;
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
 export type JsonObject = { readonly [key: string]: JsonValue };
 
-export type GlassBoxRunStatus = "idle" | "running" | "completed" | "failed";
+export type VitreousRunStatus = "idle" | "running" | "completed" | "failed";
 
-export type GlassBoxEventType =
+export type VitreousEventType =
   | "run.started"
   | "source.added"
   | "decision.made"
@@ -36,12 +36,12 @@ export type GlassBoxEventType =
   | "run.completed"
   | "run.failed";
 
-export type GlassBoxEventBase<
-  TType extends GlassBoxEventType,
+export type VitreousEventBase<
+  TType extends VitreousEventType,
   TPayload extends Readonly<Record<string, unknown>>
 > = Readonly<{
   id: string;
-  schemaVersion: GlassBoxEventSchemaVersion;
+  schemaVersion: VitreousEventSchemaVersion;
   type: TType;
   runId: string;
   branchId?: BranchId;
@@ -152,19 +152,19 @@ export type RunFailedPayload =
     metadata?: JsonObject;
   }>;
 
-export type RunStartedEvent = GlassBoxEventBase<"run.started", RunStartedPayload>;
-export type SourceAddedEvent = GlassBoxEventBase<"source.added", SourceAddedPayload>;
-export type DecisionMadeEvent = GlassBoxEventBase<"decision.made", DecisionMadePayload>;
-export type ConflictDetectedEvent = GlassBoxEventBase<"conflict.detected", ConflictDetectedPayload>;
-export type ConflictResolvedEvent = GlassBoxEventBase<"conflict.resolved", ConflictResolvedPayload>;
-export type ActionRequestedEvent = GlassBoxEventBase<"action.requested", ActionRequestedPayload>;
-export type ActionResolvedEvent = GlassBoxEventBase<"action.resolved", ActionResolvedPayload>;
-export type BranchForkedEvent = GlassBoxEventBase<"branch.forked", BranchForkedPayload>;
-export type BranchSwitchedEvent = GlassBoxEventBase<"branch.switched", BranchSwitchedPayload>;
-export type RunCompletedEvent = GlassBoxEventBase<"run.completed", RunCompletedPayload>;
-export type RunFailedEvent = GlassBoxEventBase<"run.failed", RunFailedPayload>;
+export type RunStartedEvent = VitreousEventBase<"run.started", RunStartedPayload>;
+export type SourceAddedEvent = VitreousEventBase<"source.added", SourceAddedPayload>;
+export type DecisionMadeEvent = VitreousEventBase<"decision.made", DecisionMadePayload>;
+export type ConflictDetectedEvent = VitreousEventBase<"conflict.detected", ConflictDetectedPayload>;
+export type ConflictResolvedEvent = VitreousEventBase<"conflict.resolved", ConflictResolvedPayload>;
+export type ActionRequestedEvent = VitreousEventBase<"action.requested", ActionRequestedPayload>;
+export type ActionResolvedEvent = VitreousEventBase<"action.resolved", ActionResolvedPayload>;
+export type BranchForkedEvent = VitreousEventBase<"branch.forked", BranchForkedPayload>;
+export type BranchSwitchedEvent = VitreousEventBase<"branch.switched", BranchSwitchedPayload>;
+export type RunCompletedEvent = VitreousEventBase<"run.completed", RunCompletedPayload>;
+export type RunFailedEvent = VitreousEventBase<"run.failed", RunFailedPayload>;
 
-export type GlassBoxEvent =
+export type VitreousEvent =
   | RunStartedEvent
   | SourceAddedEvent
   | DecisionMadeEvent
@@ -177,7 +177,7 @@ export type GlassBoxEvent =
   | RunCompletedEvent
   | RunFailedEvent;
 
-export type GlassBoxEventInput =
+export type VitreousEventInput =
   | Readonly<{ type: "run.started"; branchId?: BranchId; payload?: RunStartedPayload }>
   | Readonly<{ type: "source.added"; branchId?: BranchId; payload: SourceAddedPayload }>
   | Readonly<{ type: "decision.made"; branchId?: BranchId; payload: DecisionMadePayload }>
@@ -190,7 +190,7 @@ export type GlassBoxEventInput =
   | Readonly<{ type: "run.completed"; branchId?: BranchId; payload?: RunCompletedPayload }>
   | Readonly<{ type: "run.failed"; branchId?: BranchId; payload: RunFailedPayload }>;
 
-export type GlassBoxEventFactoryOptions = Readonly<{
+export type VitreousEventFactoryOptions = Readonly<{
   runId: string;
   now?: () => IsoDateTime;
   nextEventId?: () => string;
@@ -198,23 +198,23 @@ export type GlassBoxEventFactoryOptions = Readonly<{
 
 const nowIso = (): IsoDateTime => new Date().toISOString();
 
-export function createGlassBoxEvent(
-  input: GlassBoxEventInput,
-  options: GlassBoxEventFactoryOptions
-): GlassBoxEvent {
+export function createVitreousEvent(
+  input: VitreousEventInput,
+  options: VitreousEventFactoryOptions
+): VitreousEvent {
   const timestamp = options.now ? options.now() : nowIso();
   const id = options.nextEventId ? options.nextEventId() : `event-${timestamp}-${input.type}`;
   const payload = input.payload ?? {};
 
   return {
     id,
-    schemaVersion: GLASSBOX_EVENT_SCHEMA_VERSION,
+    schemaVersion: VITREOUS_EVENT_SCHEMA_VERSION,
     type: input.type,
     runId: options.runId,
     branchId: input.branchId,
     timestamp,
     payload
-  } as GlassBoxEvent;
+  } as VitreousEvent;
 }
 
 export function eventToAddNodeInput(event: SourceAddedEvent): AddNodeInput;

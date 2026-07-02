@@ -1,11 +1,11 @@
-# Glass Box MVP Plan
+# Vitreous MVP Plan
 
-This roadmap tracks the MVP build for the Glass Box AI UX Framework and serves as a shared reference for implementation progress.
+This roadmap tracks the MVP build for the Vitreous AI UX Framework and serves as a shared reference for implementation progress.
 
 ## Progress Snapshot
 
 - Week 1 (in progress): Core deterministic IDs, invariants/validation, and core action tests are complete.
-- Week 1 integration update: `@glassbox/react` `ThoughtTreeProvider` now delegates mutations to the `@glassbox/core` state manager (single state transition source of truth).
+- Week 1 integration update: `@vitreous/react` `ThoughtTreeProvider` now delegates mutations to the `@vitreous/core` state manager (single state transition source of truth).
 - Week 1 regression coverage: Added React-level provider tests for add/fork/switch flows and provider-usage guardrails.
 - Week 2 kickoff: Decision-hover provenance highlighting is live (contributing citation links and citation nodes are emphasized while non-contributors dim).
 
@@ -24,7 +24,7 @@ MVP covers four core framework capabilities:
 
 ## Week 1: Core Engine + Stable Rail
 
-- Finalize `@glassbox/core` DAG invariants and deterministic ID generation.
+- Finalize `@vitreous/core` DAG invariants and deterministic ID generation.
 - Lock action semantics for:
   - `addNode`
   - `forkAtNode`
@@ -65,7 +65,7 @@ MVP covers four core framework capabilities:
 
 ## Week 3: DX + Docs + A11y + QA
 
-- Finalize `@glassbox/react` public API ergonomics and examples.
+- Finalize `@vitreous/react` public API ergonomics and examples.
 - Build docs in `apps/docs`:
   - architecture overview
   - node model
@@ -89,7 +89,7 @@ MVP covers four core framework capabilities:
 
 ## P0 (Must-Have for MVP)
 
-- [x] Core deterministic ID strategy (`@glassbox/core`)
+- [x] Core deterministic ID strategy (`@vitreous/core`)
 - [x] Core invariants + validation (no invalid parent refs / broken branches)
 - [x] Unit tests for all core state actions
 - [x] Active chain + fork creation from decision hover action
@@ -121,8 +121,8 @@ MVP covers four core framework capabilities:
 
 ## Definition of Done (MVP)
 
-- `@glassbox/core` provides deterministic, tested DAG state transitions.
-- `@glassbox/react` supports:
+- `@vitreous/core` provides deterministic, tested DAG state transitions.
+- `@vitreous/react` supports:
   - active linear chain
   - explicit user-driven forking from decision nodes
   - stable multi-branch rendering with curved connectors
