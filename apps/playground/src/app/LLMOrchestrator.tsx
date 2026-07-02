@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { SpatialRail, useGlassBox } from "@glassbox/react";
+import type { DecisionNode, ExecutionNode } from "@glassbox/core";
 import { askGlassBox, askGlassBoxContinuation } from "./actions";
 
 type Message = {
@@ -32,6 +33,8 @@ export function LLMOrchestrator() {
   const lastQueryRef = useRef<string>("");
   const processedConflictIds = useRef<Set<string>>(new Set());
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const restoredChatRef = useRef(false);
+  const completedRunRef = useRef(false);
   const activeTimeline = state.branchesById[state.activeBranchId]?.timeline ?? [];
   const lastActiveNodeId = activeTimeline[activeTimeline.length - 1];
   const lastActiveNode = lastActiveNodeId ? state.nodesById[lastActiveNodeId] : undefined;
@@ -45,6 +48,84 @@ export function LLMOrchestrator() {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Rebuild the chat transcript from the replayed event log on mount, since
+  // messages are component state and don't survive a reload the way the rail does.
+  useEffect(() => {
+    if (restoredChatRef.current || messages.length > 0) {
+      return;
+    }
+
+    const hasRestorableEvent = events.some(
+      (event) =>
+        (event.type === "source.added" && event.payload.source.kind === "user") ||
+        event.type === "conflict.detected" ||
+        event.type === "decision.made"
+    );
+    if (!hasRestorableEvent) {
+      return;
+    }
+
+    restoredChatRef.current = true;
+
+    const restored: Message[] = [];
+    let lastUserExcerpt = "";
+    for (const event of events) {
+      if (event.type === "source.added" && event.payload.source.kind === "user") {
+        const content = event.payload.excerpt ?? "";
+        restored.push({ id: event.id, role: "user", content });
+        lastUserExcerpt = content;
+      } else if (event.type === "conflict.detected") {
+        restored.push({
+          id: event.id,
+          role: "assistant",
+          content: "I've encountered a conflict between the studies. Please check the explainability rail to resolve it."
+        });
+      } else if (event.type === "decision.made") {
+        restored.push({ id: event.id, role: "assistant", content: event.payload.claim });
+      }
+    }
+
+    setMessages(restored);
+    if (lastUserExcerpt) {
+      lastQueryRef.current = lastUserExcerpt;
+    }
+  }, [events, messages.length]);
+
+  // Complete the run once every execution gate on the active branch has been
+  // resolved, instead of immediately after requesting approval.
+  useEffect(() => {
+    if (status !== "running" || completedRunRef.current) {
+      return;
+    }
+
+    const activeNodes = activeTimeline
+      .map((nodeId) => state.nodesById[nodeId])
+      .filter((node): node is NonNullable<typeof node> => Boolean(node));
+    const hasDecision = activeNodes.some((node) => node.type === "decision");
+    const executionNodes = activeNodes.filter(
+      (node): node is ExecutionNode => node.type === "execution"
+    );
+
+    if (!hasDecision || executionNodes.length === 0) {
+      return;
+    }
+
+    const hasPendingGate = executionNodes.some((node) => node.gate.status === "pending");
+    if (hasPendingGate) {
+      return;
+    }
+
+    const latestDecision = [...activeNodes]
+      .reverse()
+      .find((node): node is DecisionNode => node.type === "decision");
+    if (!latestDecision) {
+      return;
+    }
+
+    completedRunRef.current = true;
+    completeRun({ summary: latestDecision.claim });
+  }, [activeTimeline, completeRun, state, status]);
 
   const handleContinuation = React.useCallback(async (chosenLabel: string, conflictDescription: string) => {
     setIsLoading(true);
@@ -90,7 +171,6 @@ export function LLMOrchestrator() {
             "The playground records assistant outputs as auditable events so the host app can persist or reject downstream side effects."
         }
       });
-      completeRun({ summary: payload.claim });
 
       setMessages(prev => [...prev, {
         id: Math.random().toString(36).substr(2, 9),
@@ -102,7 +182,7 @@ export function LLMOrchestrator() {
     } finally {
       setIsLoading(false);
     }
-  }, [completeRun, recordDecision, requestActionApproval]);
+  }, [recordDecision, requestActionApproval]);
 
   // Auto-continuation loop: watch for resolved conflicts on the active branch.
   useEffect(() => {
@@ -145,6 +225,12 @@ export function LLMOrchestrator() {
     setIsLoading(true);
     lastQueryRef.current = query;
 
+    const userPrompt = recordSource({
+      source: { kind: "user", uri: "user://prompt", title: "User prompt" },
+      excerpt: query
+    });
+    const userPromptNodeId = userPrompt.nodeId;
+
     try {
       const result = await askGlassBox(query);
       setMode(result.mode ?? "live");
@@ -171,7 +257,7 @@ export function LLMOrchestrator() {
           claim: payload.claim,
           confidence: payload.confidence,
           rationale: payload.rationale,
-          provenance: citationIds,
+          provenance: userPromptNodeId ? [...citationIds, userPromptNodeId] : citationIds,
           alternatives: payload.alternatives || []
         });
         requestActionApproval({
@@ -186,7 +272,6 @@ export function LLMOrchestrator() {
               "The host app controls whether this assistant output becomes part of a durable audit trail."
           }
         });
-        completeRun({ summary: payload.claim });
 
         setMessages(prev => [...prev, {
           id: Math.random().toString(36).substr(2, 9),

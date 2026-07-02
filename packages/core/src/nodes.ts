@@ -21,7 +21,7 @@ export type CitationNode = ThoughtNodeBase &
   Readonly<{
     type: "citation";
     source: Readonly<{
-      kind: "url" | "file" | "memory";
+      kind: "url" | "file" | "memory" | "user";
       uri: string;
       title?: string;
       domain?: string;
