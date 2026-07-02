@@ -27,6 +27,7 @@ export function LLMOrchestrator() {
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isRailOpen, setIsRailOpen] = useState(true);
+  const [mode, setMode] = useState<"live" | "replay" | null>(null);
   
   const lastQueryRef = useRef<string>("");
   const processedConflictIds = useRef<Set<string>>(new Set());
@@ -146,7 +147,8 @@ export function LLMOrchestrator() {
 
     try {
       const result = await askGlassBox(query);
-      
+      setMode(result.mode ?? "live");
+
       const citationIds: string[] = [];
       for (const citation of result.citations) {
         if (citation.type !== "citation") {
@@ -216,6 +218,11 @@ export function LLMOrchestrator() {
     <div className="flex h-[85vh] w-full gap-4 overflow-hidden p-4">
       {/* LEFT PANE: CHAT */}
       <div className="flex flex-1 flex-col rounded-3xl bg-[#0d1117] border border-white/5 overflow-hidden shadow-2xl relative">
+        {mode === "replay" && (
+          <div className="absolute top-4 left-6 z-10 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-amber-300/80 pointer-events-none">
+            Scripted replay · no live model
+          </div>
+        )}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {messages.length === 0 && (
             <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
@@ -224,6 +231,13 @@ export function LLMOrchestrator() {
               </div>
               <h2 className="text-xl font-medium text-white">Glass Box Orchestrator</h2>
               <p className="text-sm mt-2 max-w-xs">Ask a question about your endurance studies to begin the reasoning chain.</p>
+              <button
+                type="button"
+                onClick={() => setQuery("How should I structure my training to prepare for a marathon?")}
+                className="mt-5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-xs text-emerald-300/90 hover:bg-emerald-500/20 transition pointer-events-auto"
+              >
+                Try: “How should I structure my training for a marathon?”
+              </button>
             </div>
           )}
           

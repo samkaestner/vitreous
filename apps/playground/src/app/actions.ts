@@ -4,8 +4,22 @@ import fs from "fs/promises";
 import path from "path";
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import type { AddNodeInput } from "@glassbox/core";
+import {
+  REPLAY_LATENCY_MS,
+  demoContinuationResponse,
+  demoInitialResponse
+} from "./demo-script";
 
 const ai = new GoogleGenAI({}); // Relies on GEMINI_API_KEY env var
+
+// Replay mode: with no API key (or when forced), the actions return scripted
+// responses instead of calling the model. The supervision flow on the client
+// is identical — only the LLM is canned. This is what the hosted demo runs.
+const isReplayMode = () =>
+  process.env.GLASSBOX_DEMO_MODE === "1" || !process.env.GEMINI_API_KEY;
+
+const simulateModelLatency = () =>
+  new Promise((resolve) => setTimeout(resolve, REPLAY_LATENCY_MS));
 
 // Define the expected output schema for the LLM
 const responseSchema: Schema = {
@@ -90,7 +104,17 @@ export async function askGlassBox(query: string) {
     }
   }
 
-  // 2. Call Gemini
+  // 2. Replay mode: skip the model, return the scripted conflict
+  if (isReplayMode()) {
+    await simulateModelLatency();
+    return {
+      citations,
+      llmResponse: demoInitialResponse(),
+      mode: "replay" as const
+    };
+  }
+
+  // 2b. Call Gemini
   const response = await ai.models.generateContent({
     model: "gemini-2.5-pro",
     contents: query,
@@ -110,7 +134,8 @@ export async function askGlassBox(query: string) {
   // 3. Return the parsed result along with the citations so the client can build the DAG
   return {
     citations,
-    llmResponse: result
+    llmResponse: result,
+    mode: "live" as const
   };
 }
 
@@ -156,6 +181,12 @@ export async function askGlassBoxContinuation(
   chosenLabel: string,
   conflictDescription: string
 ) {
+  // Replay mode: return the scripted synthesis weighted to the user's choice
+  if (isReplayMode()) {
+    await simulateModelLatency();
+    return demoContinuationResponse(chosenLabel);
+  }
+
   // 1. Read local .md files for context (the LLM still needs both to weigh them)
   const dataDir = path.join(process.cwd(), "src/data");
   let files: string[] = [];
