@@ -3,7 +3,7 @@
 import * as React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import type { ThoughtTreeState } from "@glassbox/core";
+import type { ThoughtTreeState } from "@vitreous/core";
 import { ThoughtTreeProvider, useThoughtTree } from "./ThoughtTreeContext.js";
 
 function makeInitialState(): ThoughtTreeState {
@@ -121,7 +121,7 @@ function BrokenConsumer() {
 describe("ThoughtTreeProvider", () => {
   it("throws helpful error when used outside provider", () => {
     expect(() => render(<BrokenConsumer />)).toThrow(
-      "[GlassBox] useThoughtTree must be used within <ThoughtTreeProvider initialState={...}>."
+      "[Vitreous] useThoughtTree must be used within <ThoughtTreeProvider initialState={...}>."
     );
   });
 

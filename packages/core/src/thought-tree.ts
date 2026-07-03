@@ -50,6 +50,7 @@ export type ThoughtTreeState = Readonly<{
 export type AddNodeInput =
   | Readonly<{
       type: "citation";
+      id?: NodeId;
       branchId?: BranchId;
       parentIds?: ReadonlyArray<NodeId>;
       source: ThoughtNode extends infer T
@@ -63,6 +64,7 @@ export type AddNodeInput =
     }>
   | Readonly<{
       type: "decision";
+      id?: NodeId;
       branchId?: BranchId;
       parentIds?: ReadonlyArray<NodeId>;
       claim: string;
@@ -73,6 +75,7 @@ export type AddNodeInput =
     }>
   | Readonly<{
       type: "execution";
+      id?: NodeId;
       branchId?: BranchId;
       parentIds?: ReadonlyArray<NodeId>;
       action: ExecutionNode["action"];
@@ -80,6 +83,7 @@ export type AddNodeInput =
     }>
   | Readonly<{
       type: "conflict";
+      id?: NodeId;
       branchId?: BranchId;
       parentIds?: ReadonlyArray<NodeId>;
       contenders: ConflictNode["contenders"];
@@ -88,6 +92,7 @@ export type AddNodeInput =
 
 export type ForkAtNodeInput = Readonly<{
   nodeId: NodeId;
+  branchId?: BranchId;
   fromBranchId?: BranchId;
   name?: string;
   /** Optional steering directive (free-form prompt and/or selected alternative). */
@@ -123,4 +128,3 @@ export type UseThoughtTreeAPI = Readonly<{
   getActiveBranch: () => BranchMeta;
   getBranchTimeline: (branchId?: BranchId) => ReadonlyArray<ThoughtNode>;
 }>;
-

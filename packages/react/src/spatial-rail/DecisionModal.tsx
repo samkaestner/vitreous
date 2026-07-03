@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { CitationNode, DecisionNode, ForkSteering } from "@glassbox/core";
+import type { CitationNode, DecisionNode, ForkSteering } from "@vitreous/core";
 
 export type DecisionModalStage = "details" | "steer";
 

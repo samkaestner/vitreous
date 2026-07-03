@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import type { ConflictNode, ThoughtNode } from "@glassbox/core";
+import type { ConflictNode, ThoughtNode } from "@vitreous/core";
 import { useThoughtTree } from "../thought-tree/ThoughtTreeContext.js";
 
 export type ConflictNodeUIProps = {
@@ -27,7 +27,7 @@ export function ConflictNodeUI({ node, isActive }: ConflictNodeUIProps) {
     });
   };
 
-  const containerBaseClasses = "w-[384px] rounded-[1.25rem] border p-4 shadow-gb-node transition-colors text-left";
+  const containerBaseClasses = "w-full max-w-[320px] mx-auto rounded-[1.25rem] border p-4 shadow-gb-node transition-colors text-left";
   
   const stateClasses = !isActive
     ? "border-red-400/10 bg-red-950/10"
@@ -46,14 +46,10 @@ export function ConflictNodeUI({ node, isActive }: ConflictNodeUIProps) {
             {node.description ?? "Contradictory data detected"}
           </h3>
         </div>
-        {!isResolved && isActive && (
-          <div className="shrink-0 rounded-full border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-red-200">
-            Halted
-          </div>
-        )}
+
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-4 flex flex-col gap-3">
         {contenders.map((contender) => {
           const isChosen = node.resolution?.chosen === contender.id;
           const isDiscarded = isResolved && !isChosen;

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { BranchId, CitationNode, ForkSteering, ThoughtNode } from "@glassbox/core";
+import type { BranchId, CitationNode, ForkSteering, ThoughtNode } from "@vitreous/core";
 import { useThoughtTree } from "../thought-tree/ThoughtTreeContext.js";
 import { DecisionModal, type DecisionModalStage } from "./DecisionModal.js";
 import { ExecutionNodeUI } from "./ExecutionNodeUI.js";
@@ -18,6 +18,51 @@ type ForkConnector = {
   d: string;
   isActive: boolean;
 };
+
+const BRANCH_COLUMN_WIDTH = 316;
+const BRANCH_COLUMN_GAP = 12;
+const ACTIVE_CHAIN_WIDTH = 288;
+const INACTIVE_CHAIN_WIDTH = 152;
+
+function truncateLabel(input: string, maxLength = 44): string {
+  return input.length > maxLength ? `${input.slice(0, maxLength - 3).trimEnd()}...` : input;
+}
+
+function getNodeDisplay(node: ThoughtNode): {
+  kicker: string;
+  title: string;
+  detail?: string;
+} {
+  if (node.type === "citation") {
+    return {
+      kicker: "Source",
+      title: node.source.title ?? node.source.domain ?? "Citation",
+      detail: node.excerpt ?? node.source.uri
+    };
+  }
+
+  if (node.type === "decision") {
+    return {
+      kicker: `${Math.round(Math.max(0, Math.min(1, node.confidence)) * 100)}% decision`,
+      title: node.claim,
+      detail: node.rationale
+    };
+  }
+
+  if (node.type === "execution") {
+    return {
+      kicker: "Action",
+      title: node.action.summary,
+      detail: node.action.kind
+    };
+  }
+
+  return {
+    kicker: node.resolution ? "Resolved conflict" : "Conflict",
+    title: node.description ?? "Contradictory data detected",
+    detail: `${node.contenders.length} contenders`
+  };
+}
 
 function areOffsetsEqual(a: Record<string, number>, b: Record<string, number>): boolean {
   const aKeys = Object.keys(a);
@@ -99,6 +144,40 @@ export function SpatialRail(props: SpatialRailProps) {
       }),
     [state.branchesById]
   );
+  const branchSlots = React.useMemo(() => {
+    const slots: Record<BranchId, number> = {};
+    const usedSlots = new Set<number>();
+
+    for (const branch of branches) {
+      let candidate = 0;
+      if (branch.parentBranchId) {
+        candidate = (slots[branch.parentBranchId] ?? 0) - 1;
+        while (usedSlots.has(candidate)) {
+          candidate -= 1;
+        }
+      } else {
+        while (usedSlots.has(candidate)) {
+          candidate += 1;
+        }
+      }
+
+      slots[branch.id] = candidate;
+      usedSlots.add(candidate);
+    }
+
+    return slots;
+  }, [branches]);
+  const spatialBranches = React.useMemo(
+    () =>
+      [...branches].sort((a, b) => {
+        const slotDelta = (branchSlots[a.id] ?? 0) - (branchSlots[b.id] ?? 0);
+        if (slotDelta !== 0) {
+          return slotDelta;
+        }
+        return a.createdAt.localeCompare(b.createdAt);
+      }),
+    [branchSlots, branches]
+  );
 
   const [pendingBranchId, setPendingBranchId] = React.useState<string | null>(null);
   const [isSwitchingBranch, setIsSwitchingBranch] = React.useState(false);
@@ -113,8 +192,10 @@ export function SpatialRail(props: SpatialRailProps) {
   const [modalDecisionId, setModalDecisionId] = React.useState<string | null>(null);
   const [modalStage, setModalStage] = React.useState<DecisionModalStage>("details");
   const [modalSourceBranchId, setModalSourceBranchId] = React.useState<BranchId | null>(null);
+  const helpTooltipId = React.useId();
 
   const railTracksRef = React.useRef<HTMLDivElement | null>(null);
+  const branchViewportRef = React.useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
   const nodeRefs = React.useRef<Record<string, HTMLDivElement | null>>({});
   const branchLaneRefs = React.useRef<Record<string, HTMLDivElement | null>>({});
@@ -154,11 +235,25 @@ export function SpatialRail(props: SpatialRailProps) {
     if (activeBranchTimelineCount > previousTimelineCountRef.current) {
       scrollContainerRef.current.scrollTo({
         top: scrollContainerRef.current.scrollHeight,
-        behavior: 'smooth'
+        behavior: "smooth"
       });
     }
     previousTimelineCountRef.current = activeBranchTimelineCount;
   }, [activeBranchTimelineCount, state.activeBranchId]);
+
+  React.useLayoutEffect(() => {
+    const viewport = branchViewportRef.current;
+    const activeLane = branchLaneRefs.current[activeBranch.id];
+    if (!viewport || !activeLane) {
+      return;
+    }
+
+    const nextLeft = activeLane.offsetLeft + activeLane.offsetWidth / 2 - viewport.clientWidth / 2;
+    viewport.scrollTo({
+      left: Math.max(0, nextLeft),
+      behavior: "smooth"
+    });
+  }, [activeBranch.id, spatialBranches.length, state.revision]);
 
   const getNodeRefKey = React.useCallback((branchId: BranchId, nodeId: string) => {
     return `${branchId}:${nodeId}`;
@@ -181,6 +276,30 @@ export function SpatialRail(props: SpatialRailProps) {
   const setBranchLaneRef = React.useCallback((branchId: BranchId, element: HTMLDivElement | null) => {
     branchLaneRefs.current[branchId] = element;
   }, []);
+
+  const getBranchLabel = React.useCallback(
+    (branch: (typeof branches)[number]) => {
+      if (branch.name && !branch.name.startsWith("Fork from node-")) {
+        return branch.name;
+      }
+
+      if (branch.forkedFromNodeId) {
+        const forkNode = state.nodesById[branch.forkedFromNodeId];
+        if (forkNode?.type === "decision") {
+          return `Fork: ${truncateLabel(forkNode.claim)}`;
+        }
+        if (forkNode?.type === "citation") {
+          return `Fork: ${truncateLabel(forkNode.source.title ?? forkNode.source.domain ?? "citation")}`;
+        }
+        if (forkNode) {
+          return `Fork: ${forkNode.type}`;
+        }
+      }
+
+      return branch.name ?? branch.id;
+    },
+    [branches, state.nodesById]
+  );
 
   const performBranchSwitch = React.useCallback(async (branchId: string) => {
     setIsSwitchingBranch(true);
@@ -258,7 +377,10 @@ export function SpatialRail(props: SpatialRailProps) {
       forkAtNode({
         fromBranchId: targetBranchId,
         nodeId: targetNodeId,
-        name: `Fork from ${targetNodeId}`,
+        name:
+          modalDecision?.type === "decision"
+            ? `Fork: ${truncateLabel(modalDecision.claim)}`
+            : `Fork from ${targetNodeId}`,
         steering: hasSteering ? steering : undefined
       });
       setIsForkingNodeId(null);
@@ -266,7 +388,7 @@ export function SpatialRail(props: SpatialRailProps) {
       setModalSourceBranchId(null);
       setModalStage("details");
     },
-    [forkAtNode, modalDecisionId, modalSourceBranchId]
+    [forkAtNode, modalDecision, modalDecisionId, modalSourceBranchId]
   );
 
   const renderNode = React.useCallback(
@@ -282,21 +404,56 @@ export function SpatialRail(props: SpatialRailProps) {
       const isHighlightedCitation =
         node.type === "citation" && highlightedCitationIds.has(node.id);
 
+      if (isInactive) {
+        const display = getNodeDisplay(node);
+
+        return (
+          <div className="w-[152px] rounded-[0.8rem] border border-white/[0.08] bg-white/[0.025] px-3 py-2.5 text-left shadow-none transition group-hover:border-white/[0.14] group-hover:bg-white/[0.04]">
+            <p className="truncate text-[9px] font-semibold uppercase tracking-[0.16em] text-white/28">
+              {display.kicker}
+            </p>
+            <p className="mt-1 line-clamp-2 text-[11px] font-medium leading-4 text-white/42">
+              {display.title}
+            </p>
+            {display.detail ? (
+              <p className="mt-1 line-clamp-1 text-[10px] leading-4 text-white/24">
+                {display.detail}
+              </p>
+            ) : null}
+          </div>
+        );
+      }
+
       if (node.type === "citation") {
         return (
           <div
             className={[
-              "px-2 py-1 text-xs font-medium tracking-[0.08em] transition-colors",
+              "w-full max-w-[288px] rounded-[0.85rem] border bg-[#191b20] px-3 py-2.5 text-left shadow-none transition-colors",
               isHighlightedCitation
-                ? "text-[#e0bc78]"
-                : isInactive
-                  ? "text-white/28"
-                  : "text-white/46"
-            ]
-              .filter(Boolean)
-              .join(" ")}
+                ? "border-white/24 bg-[#202228]"
+                : "border-white/[0.08]"
+            ].join(" ")}
           >
-            citation
+            <div className="flex items-center justify-between gap-2">
+              <p className="truncate text-[9px] font-semibold uppercase tracking-[0.16em] text-white/34">
+                Source
+              </p>
+              <div
+                aria-hidden="true"
+                className={[
+                  "h-1.5 w-1.5 shrink-0 rounded-full transition-all duration-300",
+                  isHighlightedCitation ? "bg-white/72" : "bg-white/22"
+                ].join(" ")}
+              />
+            </div>
+            <p className="mt-1 truncate text-[12px] font-medium text-white/72">
+              {node.source.title ?? node.source.domain ?? "Citation"}
+            </p>
+            {node.excerpt ? (
+              <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-white/36">
+                {node.excerpt}
+              </p>
+            ) : null}
           </div>
         );
       }
@@ -321,133 +478,62 @@ export function SpatialRail(props: SpatialRailProps) {
 
         return (
           <div
-            className="group relative"
+            className="group relative flex flex-col items-center"
             onMouseEnter={() => setHoveredDecisionNodeId(node.id)}
             onMouseLeave={() => setHoveredDecisionNodeId((current) => (current === node.id ? null : current))}
           >
-            <div className="group/decision relative inline-flex">
-              {canFork ? (
-                <button
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    openDecisionModal(opts.branchId, node.id, "details");
-                  }}
-                  aria-label={`Open decision details for ${node.claim} (${confidencePct}% confidence)`}
-                  aria-haspopup="dialog"
-                  className={[
-                    "inline-flex max-w-[160px] items-center truncate whitespace-nowrap rounded-full border px-5 py-2 text-sm font-semibold shadow-gb-node",
-                    "transition-colors focus:outline-none focus:ring-2 focus:ring-[#e0bc78]/45",
-                    "cursor-pointer hover:brightness-110 active:scale-[0.98]",
-                    isHoveredDecision ? "ring-2 ring-[#e0bc78]/40" : "",
-                    decisionTone.activeClasses
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                >
-                  {node.claim}
-                </button>
-              ) : (
-                <div
-                  aria-label={`${node.id} decision with ${confidencePct}% confidence`}
-                  className={[
-                    "inline-flex max-w-[160px] items-center truncate whitespace-nowrap rounded-full border px-5 py-2 text-sm font-semibold shadow-gb-node",
-                    "transition-colors",
-                    isHoveredDecision ? "ring-2 ring-[#e0bc78]/40" : "",
-                    isInactive ? decisionTone.inactiveClasses : decisionTone.activeClasses
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                >
-                  {node.claim}
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                openDecisionModal(opts.branchId, node.id, "details");
+              }}
+              className={[
+                "flex w-full max-w-[288px] flex-col overflow-hidden rounded-[0.95rem] border shadow-none transition-all duration-200",
+                isHoveredDecision
+                  ? "border-white/18 bg-[#202226]"
+                  : "border-white/[0.10] bg-[#1b1d22]",
+                "hover:border-white/20 hover:bg-[#22252b]"
+              ].join(" ")}
+            >
+              <div className="flex w-full">
+                {/* Confidence Strip */}
+                <div 
+                  className={`w-1 shrink-0 ${decisionTone.activeClasses.split(" ")[1]}`} 
+                  style={{ opacity: confidence * 0.8 + 0.2 }}
+                />
+                
+                <div className="flex-1 p-3 text-left">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-bold tracking-tight text-white/95 line-clamp-2">
+                      {node.claim}
+                    </span>
+                    <span className={`text-[9px] font-bold uppercase tracking-wider ${decisionTone.activeClasses.split(" ")[2]}`}>
+                      {confidencePct}%
+                    </span>
+                  </div>
+                  
+                  {decisionCitations.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5 border-t border-white/5 pt-2">
+                      {visibleCitations.map((citation) => (
+                        <div 
+                          key={citation.id}
+                          className="flex items-center gap-1 text-[9px] font-medium text-white/40"
+                        >
+                          <svg className="w-2.5 h-2.5 opacity-40" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" /><path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" /></svg>
+                          <span className="truncate max-w-[80px]">
+                            {citation.source.domain ?? "source"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-
-              <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 rounded-md border border-white/15 bg-[#0e1420] px-2 py-1 text-xs font-medium text-white/85 opacity-0 shadow-gb-node transition group-hover/decision:opacity-100">
-                {confidencePct}% confidence
               </div>
-            </div>
-
-            <div className="mt-1.5 flex flex-col items-center gap-0.5">
-              {visibleCitations.map((citation) => (
-                <motion.a
-                  key={citation.id}
-                  href={citation.source.uri}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(event) => event.stopPropagation()}
-                  animate={{
-                    scale: isHoveredDecision ? 1.02 : 1,
-                    x: isHoveredDecision ? 4 : 0
-                  }}
-                  transition={{ duration: 0.2 }}
-                  className={[
-                    "inline-flex max-w-[140px] items-center truncate text-[11px] font-medium underline-offset-2",
-                    highlightedCitationIds.size > 0
-                      ? highlightedCitationIds.has(citation.id)
-                        ? "text-[#e0bc78] underline"
-                        : "text-white/32"
-                      : isInactive
-                        ? "text-white/40"
-                        : "text-white/72 hover:text-white hover:underline"
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  title={citation.source.title ?? citation.source.uri}
-                >
-                  {citation.source.domain ?? citation.source.title ?? "source"}
-                </motion.a>
-              ))}
-
-              {hasOverflow && !isExpanded ? (
-                <button
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setExpandedCitationNodes((prev) => ({ ...prev, [node.id]: true }));
-                  }}
-                  className={[
-                    "inline-flex items-center text-[11px] font-semibold underline-offset-2",
-                    isInactive
-                      ? "text-white/40"
-                      : "text-white/75 hover:text-white hover:underline"
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                >
-                  +{hiddenCount}
-                </button>
-              ) : null}
-            </div>
-
-            {canFork ? (
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  openDecisionModal(opts.branchId, node.id, "steer");
-                }}
-                disabled={isForkingThisNode}
-                aria-label={`Fork conversation from ${node.claim}`}
-                aria-haspopup="dialog"
-                className="absolute -right-3 -top-2 inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-[#161d2b] text-white/80 opacity-0 transition group-hover:opacity-100 hover:border-white/45 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <circle cx="6" cy="6" r="2.4" stroke="currentColor" strokeWidth="1.6" />
-                  <circle cx="6" cy="18" r="2.4" stroke="currentColor" strokeWidth="1.6" />
-                  <circle cx="18" cy="12" r="2.4" stroke="currentColor" strokeWidth="1.6" />
-                  <path
-                    d="M8.4 7.2v3.5c0 2.1 1.7 3.8 3.8 3.8h3.2"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            ) : null}
+            </button>
           </div>
         );
+/* OLD BLOCK DELETED */
       }
 
       if (node.type === "execution") {
@@ -516,17 +602,22 @@ export function SpatialRail(props: SpatialRailProps) {
 
       const sourceRect = sourceElement.getBoundingClientRect();
       const targetRect = targetElement.getBoundingClientRect();
-      // Start near the lower-right tangent of the fork node.
-      const x1 = sourceRect.right - containerRect.left - 2;
-      const y1 = sourceRect.top + sourceRect.height * 0.72 - containerRect.top;
-      const x2 = targetRect.left - containerRect.left;
-      const y2 = targetRect.top + targetRect.height * 0.35 - containerRect.top;
+      const targetIsRight = targetRect.left > sourceRect.left;
+      const x1 = (targetIsRight ? sourceRect.right : sourceRect.left) - containerRect.left;
+      const y1 = sourceRect.top + sourceRect.height * 0.5 - containerRect.top;
+      const x2 = (targetIsRight ? targetRect.left : targetRect.right) - containerRect.left;
+      const y2 = targetRect.top + targetRect.height * 0.5 - containerRect.top;
 
-      const curveTravel = Math.max(34, (x2 - x1) * 0.38);
-      const c1x = x1 + curveTravel;
-      const c1y = y1 + 6;
-      const c2x = x2 - 28;
-      const c2y = y2 - 6;
+      if (Math.abs(x2 - x1) < 48) {
+        continue;
+      }
+
+      const direction = targetIsRight ? 1 : -1;
+      const curveTravel = Math.max(28, Math.abs(x2 - x1) * 0.44);
+      const c1x = x1 + direction * curveTravel;
+      const c1y = y1;
+      const c2x = x2 - direction * curveTravel;
+      const c2y = y2;
       const d = `M ${x1} ${y1} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${x2} ${y2}`;
 
       nextConnectors.push({
@@ -601,28 +692,65 @@ export function SpatialRail(props: SpatialRailProps) {
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="mb-5 border-b border-white/10 pb-4">
+      <div className="mb-4 flex items-center justify-between gap-3">
         <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/45">
           Spatial Rail
         </p>
-        <div className="mt-2 flex items-center gap-2">
-          <span className="inline-flex items-center rounded-full border border-emerald-300/55 bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100">
-            Active
-          </span>
-          <p className="text-sm font-medium text-white/90">{activeBranch.name ?? activeBranch.id}</p>
+        <div className="group/help relative shrink-0">
+          <button
+            type="button"
+            aria-label="Show spatial rail help"
+            aria-describedby={helpTooltipId}
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-white/15 bg-white/[0.03] text-xs font-semibold text-white/55 transition hover:border-white/35 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/20"
+          >
+            ?
+          </button>
+          <div
+            id={helpTooltipId}
+            role="tooltip"
+            className="pointer-events-none absolute right-0 top-9 z-30 w-72 rounded-[0.85rem] border border-white/12 bg-[#151a24] p-3 text-[12px] leading-5 text-white/70 opacity-0 shadow-gb-rail transition duration-150 group-hover/help:opacity-100 group-focus-within/help:opacity-100"
+          >
+            Hover a decision badge to view confidence and reveal the fork control. Inactive
+            branches are dimmed and stay in fixed lanes; click a branch label or inactive lane to
+            switch context.
+          </div>
         </div>
       </div>
 
       <div className="mb-5 border-b border-white/10 pb-4">
-        <p className="text-sm leading-relaxed text-white/60">
-          Hover a decision badge to view confidence and reveal the fork control. Inactive branches are
-          dimmed and stay in fixed lanes; click an inactive lane to switch context.
-        </p>
+        <nav className="flex flex-wrap gap-2" aria-label="Reasoning branches">
+          {spatialBranches.map((branch) => {
+            const isActive = branch.id === activeBranch.id;
+            const canSwitchToBranch = !isActive && !isSwitchingBranch;
+
+            return (
+              <button
+                key={branch.id}
+                type="button"
+                onClick={() => requestBranchSwitch(branch.id)}
+                disabled={!canSwitchToBranch}
+                aria-current={isActive ? "true" : undefined}
+                className={[
+                  "inline-flex min-h-8 max-w-[220px] items-center rounded-full border px-3 text-[12px] font-medium transition",
+                  isActive
+                    ? "border-white/22 bg-white/[0.08] text-white/90"
+                    : "border-white/10 bg-white/[0.02] text-white/42 hover:border-white/24 hover:text-white/72",
+                  isSwitchingBranch ? "cursor-not-allowed opacity-60" : "",
+                  !canSwitchToBranch ? "cursor-default" : "active:scale-[0.98]"
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                <span className="truncate">{getBranchLabel(branch)}</span>
+              </button>
+            );
+          })}
+        </nav>
         {skipSwitchConfirmation ? (
           <button
             type="button"
             onClick={() => setSkipSwitchConfirmation(false)}
-            className="mt-2 inline-flex items-center rounded-full border border-white/20 px-2.5 py-1 text-left text-[11px] font-medium text-white/75 transition hover:border-white/40 hover:text-white active:scale-[0.98]"
+            className="mt-3 inline-flex items-center rounded-full border border-white/20 px-2.5 py-1 text-left text-[11px] font-medium text-white/75 transition hover:border-white/40 hover:text-white active:scale-[0.98]"
           >
             Confirmation prompts are off. Click to re-enable.
           </button>
@@ -630,13 +758,14 @@ export function SpatialRail(props: SpatialRailProps) {
       </div>
 
       <div 
-        className="overflow-x-auto pb-2"
-        style={{ 
-          WebkitMaskImage: "linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent)", 
-          maskImage: "linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent)" 
+        ref={branchViewportRef}
+        className="overflow-x-auto overflow-y-visible pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        style={{
+          WebkitMaskImage: branches.length > 1 ? "linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent)" : "none", 
+          maskImage: branches.length > 1 ? "linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent)" : "none" 
         }}
       >
-        <div ref={railTracksRef} className="relative w-max min-w-full">
+        <div ref={railTracksRef} className="relative flex w-max min-w-full items-start px-[160px]" style={{ gap: `${BRANCH_COLUMN_GAP}px` }}>
           <svg
             className="pointer-events-none absolute inset-0 z-0"
             width={forkConnectorViewport.width}
@@ -660,16 +789,15 @@ export function SpatialRail(props: SpatialRailProps) {
                   <path
                     d={connector.d}
                     fill="none"
-                    stroke="rgba(217, 178, 102, 0.45)"
-                    strokeWidth={5}
+                    stroke="rgba(255, 255, 255, 0.12)"
+                    strokeWidth={4}
                     strokeLinecap="round"
-                    filter="url(#fork-active-glow)"
                   />
                   <path
                     d={connector.d}
                     fill="none"
-                    stroke="rgba(224, 188, 120, 0.92)"
-                    strokeWidth={2}
+                    stroke="rgba(220, 220, 220, 0.58)"
+                    strokeWidth={1.5}
                     strokeLinecap="round"
                   />
                 </g>
@@ -678,28 +806,33 @@ export function SpatialRail(props: SpatialRailProps) {
                   key={connector.id}
                   d={connector.d}
                   fill="none"
-                  stroke="rgba(148, 154, 166, 0.58)"
-                  strokeWidth={2}
+                  stroke="rgba(255, 255, 255, 0.12)"
+                  strokeWidth={1.25}
                   strokeLinecap="round"
                 />
               )
             )}
           </svg>
 
-          <div className="relative z-10 flex items-start gap-4 md:gap-5">
-          {branches.map((branch) => {
+          <div className="contents">
+          {spatialBranches.map((branch) => {
             const isActive = branch.id === activeBranch.id;
             const branchTimeline = getBranchTimeline(branch.id);
             const forkIndex = branch.forkedFromNodeId
               ? branchTimeline.findIndex((node) => node.id === branch.forkedFromNodeId)
               : -1;
-            const visibleNodes = forkIndex < 0 ? branchTimeline : branchTimeline.slice(forkIndex + 1);
+            const visibleNodes = isActive
+              ? branchTimeline
+              : forkIndex < 0
+                ? branchTimeline
+                : branchTimeline.slice(forkIndex + 1);
 
             const canSwitchToBranch = !isActive;
 
             return (
               <div
                 key={branch.id}
+                ref={(element) => setBranchLaneRef(branch.id, element)}
                 onClick={() => {
                   if (canSwitchToBranch) {
                     requestBranchSwitch(branch.id);
@@ -717,39 +850,30 @@ export function SpatialRail(props: SpatialRailProps) {
                 role={canSwitchToBranch ? "button" : undefined}
                 tabIndex={canSwitchToBranch ? 0 : undefined}
                 className={[
-                  "text-left shrink-0 transition-[width] duration-300 ease-out",
-                  isActive ? "w-[384px]" : "w-[188px]"
+                  "group shrink-0 text-left transition-opacity duration-300 ease-out",
+                  isActive ? "relative z-20" : "relative z-10"
                 ].join(" ")}
+                style={{ width: `${BRANCH_COLUMN_WIDTH}px` }}
                 aria-label={canSwitchToBranch ? `Switch to branch ${branch.id}` : undefined}
               >
                 <div
-                  ref={(element) => setBranchLaneRef(branch.id, element)}
                   className={[
-                    "p-2 transition-all duration-500",
+                    "mx-auto transition-all duration-300 ease-out",
                     isActive
-                      ? ""
-                      : "opacity-40 grayscale-[0.4] hover:opacity-75 hover:grayscale-0",
+                      ? "opacity-100"
+                      : "scale-[0.94] opacity-35 grayscale hover:opacity-65 hover:grayscale-0",
                     isSwitchingBranch ? "cursor-not-allowed opacity-60" : ""
                   ]
                     .filter(Boolean)
                     .join(" ")}
+                  style={{
+                    width: `${isActive ? ACTIVE_CHAIN_WIDTH : INACTIVE_CHAIN_WIDTH}px`
+                  }}
                 >
-                  <p
-                    className={[
-                      "text-[11px] uppercase tracking-[0.16em]",
-                      isActive ? "text-white/82" : "text-white/42"
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                  >
-                    {branch.name ?? branch.id}
-                  </p>
-                  <p className="mt-1 text-[11px] text-white/40">{isActive ? "active lane" : "inactive lane"}</p>
-
-                  <div className="mt-2 space-y-0">
+                  <div className="space-y-0">
                     <AnimatePresence mode="popLayout">
                       {visibleNodes.length > 0 ? (
-                        <div style={{ paddingTop: `${branchStartOffsets[branch.id] ?? 0}px` }}>
+                        <div style={{ paddingTop: `${isActive ? 0 : branchStartOffsets[branch.id] ?? 0}px` }}>
                           {visibleNodes.map((node, index) => (
                             <motion.div
                               layout
@@ -781,7 +905,7 @@ export function SpatialRail(props: SpatialRailProps) {
                       ) : (
                         <div
                           className="flex flex-col items-center"
-                          style={{ paddingTop: `${branchStartOffsets[branch.id] ?? 0}px` }}
+                          style={{ paddingTop: `${isActive ? 0 : branchStartOffsets[branch.id] ?? 0}px` }}
                         >
                           {branch.forkedFromNodeId ? (
                             <div
@@ -896,4 +1020,3 @@ export function SpatialRail(props: SpatialRailProps) {
     </motion.aside>
   );
 }
-

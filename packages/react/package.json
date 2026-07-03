@@ -1,5 +1,5 @@
 {
-  "name": "@glassbox/react",
+  "name": "@vitreous/react",
   "version": "0.1.0",
   "description": "React UI components for AI transparency \u2014 SpatialRail, Execution Gate, Conflict Resolution, and Confidence Provenance.",
   "keywords": [
@@ -12,10 +12,10 @@
     "ux",
     "trust"
   ],
-  "homepage": "https://github.com/samkaestner/glass-box",
+  "homepage": "https://github.com/samkaestner/vitreous",
   "repository": {
     "type": "git",
-    "url": "https://github.com/samkaestner/glass-box.git",
+    "url": "https://github.com/samkaestner/vitreous.git",
     "directory": "packages/react"
   },
   "license": "MIT",
@@ -45,8 +45,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@glassbox/core": "workspace:*",
-    "@glassbox/theme": "workspace:*",
+    "@vitreous/core": "workspace:*",
+    "@vitreous/theme": "workspace:*",
     "framer-motion": "^12.23.12"
   },
   "peerDependencies": {

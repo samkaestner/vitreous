@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import type { ExecutionNode } from "@glassbox/core";
+import type { ExecutionNode } from "@vitreous/core";
 import { useThoughtTree } from "../thought-tree/ThoughtTreeContext.js";
 
 export type ExecutionNodeUIProps = {

@@ -14,7 +14,7 @@ export default function SpatialRailPage() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold tracking-tight text-white">What it does</h2>
         <p className="text-base leading-relaxed text-white/70">
-          The SpatialRail is the flagship component of Glassbox. It reads from the nearest
+          The SpatialRail is the flagship component of Vitreous. It reads from the nearest
           <code className="mx-1 rounded bg-white/10 px-1.5 py-0.5 font-mono text-sm">ThoughtTreeProvider</code>
           and renders the full DAG as a column-based layout: the active branch occupies the primary lane,
           inactive branches appear as dimmed parallel lanes, and animated SVG bezier connectors draw between fork points.
@@ -29,7 +29,7 @@ export default function SpatialRailPage() {
       <section className="space-y-4">
         <h2 className="text-2xl font-semibold tracking-tight text-white">Usage</h2>
         <div className="overflow-hidden rounded-xl border border-white/15 bg-[#121722] p-5">
-          <pre className="overflow-x-auto text-sm leading-relaxed text-white/80"><code>{`import { ThoughtTreeProvider, SpatialRail } from '@glassbox/react';
+          <pre className="overflow-x-auto text-sm leading-relaxed text-white/80"><code>{`import { ThoughtTreeProvider, SpatialRail } from '@vitreous/react';
 
 function App() {
   return (
@@ -97,11 +97,11 @@ function App() {
         <h2 className="text-2xl font-semibold tracking-tight text-white">Design notes</h2>
         <p className="text-base leading-relaxed text-white/70">
           The confidence color mapping (cool → warm) is driven by the <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-xs">confidence</code> field
-          on DecisionNodes (0.0–1.0). You can override the color scale via <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-xs">@glassbox/theme</code> tokens.
+          on DecisionNodes (0.0–1.0). You can override the color scale via <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-xs">@vitreous/theme</code> tokens.
         </p>
         <p className="text-base leading-relaxed text-white/70">
           Branch lane widths, connector curve tension, and animation timing are all configurable via CSS
-          custom properties on the rail container. See <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-xs">@glassbox/theme</code> for the full token reference.
+          custom properties on the rail container. See <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-xs">@vitreous/theme</code> for the full token reference.
         </p>
       </section>
     </main>

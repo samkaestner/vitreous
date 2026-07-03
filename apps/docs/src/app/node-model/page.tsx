@@ -8,15 +8,17 @@ export default function NodeModelPage() {
           The Node Model
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-white/60">
-          Understanding the core building blocks of the <code className="font-mono text-[#e0bc78]">ThoughtTreeState</code> DAG.
+          Understanding the supervision nodes that rebuild from the append-only <code className="font-mono text-[#e0bc78]">VitreousEvent</code> log.
         </p>
       </header>
 
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold tracking-tight text-white">Overview</h2>
         <p className="text-base leading-relaxed text-white/70">
-          The Glass Box framework relies on a directed acyclic graph (DAG) to represent the deterministic reasoning of an LLM. 
-          The graph is composed of four primary node types. Each node type plays a distinct role in orchestrating trust and handling uncertainty.
+          Vitreous uses a directed acyclic graph (DAG) to represent safe, user-facing
+          supervision state: evidence, decisions, action gates, conflicts, and branches.
+          It does not expose raw chain-of-thought. The graph is rebuilt from versioned
+          events so host apps can persist, replay, and audit user-visible AI behavior.
         </p>
       </section>
 
@@ -30,7 +32,8 @@ export default function NodeModelPage() {
             <h3 className="text-xl font-medium text-white">CitationNode</h3>
           </div>
           <p className="text-sm leading-relaxed text-white/70 mb-4">
-            Represents a retrieved chunk of information or grounding context. These nodes are not rendered directly in the spatial rail timeline; instead, they are attached to <code className="font-mono text-xs text-white/90">DecisionNode</code>s via the <code className="font-mono text-xs text-white/90">provenance</code> array.
+            Represents retrieved evidence, user context, memory, or other grounding
+            material. Decisions reference these nodes through the <code className="font-mono text-xs text-white/90">provenance</code> array so users can inspect why a claim was made.
           </p>
           <div className="rounded-lg bg-black/40 p-4 border border-white/5 overflow-x-auto">
             <pre className="text-xs text-white/60">
@@ -57,7 +60,10 @@ export default function NodeModelPage() {
             <h3 className="text-xl font-medium text-white">DecisionNode</h3>
           </div>
           <p className="text-sm leading-relaxed text-white/70 mb-4">
-            Represents a core reasoning step or logical deduction made by the AI. This is the most common node in the visual rail. It surfaces the AI's internal <code className="font-mono text-xs text-white/90">confidence</code> level, a detailed <code className="font-mono text-xs text-white/90">rationale</code>, and the specific citations used to form the decision. Users can "Fork" from a DecisionNode to steer the AI down an alternative path.
+            Represents a user-visible claim or recommendation made by the AI. This is
+            the most common node in the rail. It surfaces safe summary copy,
+            confidence, rationale, and cited provenance. Users can fork from a
+            DecisionNode to steer the AI down an alternative path.
           </p>
           <div className="rounded-lg bg-black/40 p-4 border border-white/5 overflow-x-auto">
             <pre className="text-xs text-white/60">
@@ -87,7 +93,9 @@ export default function NodeModelPage() {
             <h3 className="text-xl font-medium text-white">ExecutionNode</h3>
           </div>
           <p className="text-sm leading-relaxed text-white/70 mb-4">
-            Represents an external tool call, API request, or mutation. Because Glass Box is built for trust, Execution Nodes are implemented as human-in-the-loop "gates". The node pauses the reasoning chain until a human explicitly allows, rejects, or modifies the payload. The <code className="font-mono text-xs text-white/90">action.kind</code> (e.g. "MUTATE", "FETCH") determines the visual badge in the UI.
+            Represents an external tool call, API request, or mutation. Execution
+            Nodes are human-in-the-loop gates: the host app can pause until a user
+            allows, rejects, or modifies the action.
           </p>
           <div className="rounded-lg bg-black/40 p-4 border border-white/5 overflow-x-auto">
             <pre className="text-xs text-white/60">
@@ -120,21 +128,22 @@ export default function NodeModelPage() {
             <h3 className="text-xl font-medium text-white">ConflictNode</h3>
           </div>
           <p className="text-sm leading-relaxed text-white/70 mb-4">
-            When the AI retrieves multiple contradictory sources (Synthesis Clash), it emits a ConflictNode instead of hallucinating. The timeline halts, presenting the competing sources side-by-side, forcing the human to arbitrate before reasoning can continue.
+            When evidence disagrees, the host app can record a ConflictNode instead of
+            forcing a false synthesis. The user can arbitrate between contenders
+            before the assistant continues.
           </p>
           <div className="rounded-lg bg-black/40 p-4 border border-white/5 overflow-x-auto">
             <pre className="text-xs text-white/60">
               <code>{`type ConflictNode = {
   id: string;
   type: "conflict";
-  topic: string;
-  contenders: Array<{
-    id: string;
-    citationId: string;
-    claim: string;
-    snippet: string;
-  }>;
-  resolvedWithContenderId?: string;
+  contenders: string[];
+  description?: string;
+  resolution?: {
+    chosen: string;
+    resolvedAt: string;
+    note?: string;
+  };
 }`}</code>
             </pre>
           </div>

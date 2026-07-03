@@ -7,14 +7,14 @@ export default function Home() {
         <header className="flex items-start justify-between gap-6">
           <div className="space-y-2">
             <div className="text-xs font-medium tracking-[0.24em] text-white/60">
-              GLASS BOX · PLAYGROUND
+              VITREOUS · PLAYGROUND
             </div>
             <h1 className="text-balance text-3xl font-semibold tracking-tight">
-              Spatial Rail smoke test
+              AI supervision cockpit
             </h1>
             <p className="max-w-2xl text-pretty text-sm leading-6 text-white/70">
-              This app should be able to import from <code>@glassbox/core</code>,{" "}
-              <code>@glassbox/react</code>, and <code>@glassbox/theme</code>.
+              A production-shaped demo for provenance, conflicts, approval gates,
+              branches, and a persisted Vitreous event log.
             </p>
           </div>
         </header>

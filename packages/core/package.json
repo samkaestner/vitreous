@@ -1,7 +1,7 @@
 {
-  "name": "@glassbox/core",
+  "name": "@vitreous/core",
   "version": "0.1.0",
-  "description": "Pure TypeScript DAG state machine for AI thought trees \u2014 the core of the Glassbox XAI framework.",
+  "description": "Pure TypeScript DAG state machine for AI thought trees \u2014 the core of the Vitreous XAI framework.",
   "keywords": [
     "ai",
     "xai",
@@ -11,10 +11,10 @@
     "thought-tree",
     "ux"
   ],
-  "homepage": "https://github.com/samkaestner/glass-box",
+  "homepage": "https://github.com/samkaestner/vitreous",
   "repository": {
     "type": "git",
-    "url": "https://github.com/samkaestner/glass-box.git",
+    "url": "https://github.com/samkaestner/vitreous.git",
     "directory": "packages/core"
   },
   "license": "MIT",

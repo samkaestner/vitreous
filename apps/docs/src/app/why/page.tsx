@@ -4,7 +4,7 @@ export default function WhyPage() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-16 sm:px-8 sm:py-24 space-y-16">
       <header>
-        <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">Why Glassbox</h1>
+        <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">Why Vitreous</h1>
         <p className="mt-4 text-lg leading-relaxed text-white/60">
           AI transparency is a UX problem, not just a technical one.
         </p>
@@ -41,7 +41,7 @@ export default function WhyPage() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold tracking-tight text-white">The DAG model</h2>
         <p className="text-base leading-relaxed text-white/70">
-          Glassbox models AI reasoning as a Directed Acyclic Graph — a structure that can represent branching,
+          Vitreous models AI reasoning as a Directed Acyclic Graph — a structure that can represent branching,
           provenance, and alternative paths without losing history. When a user steers the AI in a different direction,
           the original branch does not disappear. It stays, dimmed, alongside the new one.
         </p>
@@ -54,7 +54,7 @@ export default function WhyPage() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold tracking-tight text-white">Four patterns, one framework</h2>
         <p className="text-base leading-relaxed text-white/70">
-          Glassbox ships four components, each addressing a specific trust failure in current AI interfaces:
+          Vitreous ships four components, each addressing a specific trust failure in current AI interfaces:
         </p>
         <div className="space-y-4 mt-4">
           <div className="rounded-2xl border border-white/10 bg-[#121722] p-6">
@@ -93,7 +93,7 @@ export default function WhyPage() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold tracking-tight text-white">For design teams</h2>
         <p className="text-base leading-relaxed text-white/70">
-          Glassbox is as much a pattern library as a component library. The four components represent a
+          Vitreous is as much a pattern library as a component library. The four components represent a
           design framework for AI trust UX — patterns you can adapt, extend, or use as a baseline
           for your own design system.
         </p>

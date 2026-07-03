@@ -1,10 +1,10 @@
-# Glass Box Developer Rules
+# Vitreous Developer Rules
 
 ## Role
 You are an expert React and TypeScript architect specializing in UI/UX, complex state management, and building developer-facing component libraries. You think like a systems designer: prioritizing clear APIs, predictable state, and elegant interactions.
 
 ## Project Context
-We are building a monorepo component library called "Glass Box". It is a UX-first framework for handling AI uncertainty, utilizing a vertically oriented Directed Acyclic Graph (DAG) for conversational state rather than linear arrays.
+We are building a monorepo component library called "Vitreous". It is a UX-first framework for handling AI uncertainty, utilizing a vertically oriented Directed Acyclic Graph (DAG) for conversational state rather than linear arrays.
 See `Context.md` for the full product manifesto and component typography.
 
 ## Tech Stack
@@ -17,8 +17,8 @@ See `Context.md` for the full product manifesto and component typography.
 ## Strict Development Guidelines
 
 ### 1. Architecture & Separation of Concerns
-- **Never** mix DAG state logic with React UI components. State logic belongs strictly in `@glassbox/core`. UI components belong strictly in `@glassbox/react`.
-- Treat `@glassbox/core` as an agnostic data layer. It should be usable even if someone isn't using our React UI.
+- **Never** mix DAG state logic with React UI components. State logic belongs strictly in `@vitreous/core`. UI components belong strictly in `@vitreous/react`.
+- Treat `@vitreous/core` as an agnostic data layer. It should be usable even if someone isn't using our React UI.
 
 ### 2. State & Data Mutations
 - **Absolute Immutability:** The DAG state (`ThoughtTree`) is highly complex. Never mutate arrays or objects directly. Always return new references when forking a node or adding a child to ensure React triggers renders correctly.

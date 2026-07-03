@@ -3,7 +3,7 @@
 import * as React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { CitationNode, DecisionNode } from "@glassbox/core";
+import type { CitationNode, DecisionNode } from "@vitreous/core";
 import { DecisionModal } from "./DecisionModal.js";
 
 function makeDecision(overrides?: Partial<DecisionNode>): DecisionNode {
