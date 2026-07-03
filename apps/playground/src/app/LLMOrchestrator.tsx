@@ -150,13 +150,20 @@ export function LLMOrchestrator() {
       // Remove the "resolving" placeholder
       setMessages(prev => prev.filter(m => !m.id.startsWith("resolving-")));
 
-      // Result is guaranteed to be a decision
+      // Result is guaranteed to be a decision. Ground it in the citations
+      // already on the active branch (the studies plus the user prompt).
       const payload = result.decisionPayload;
+      const provenance = (state.branchesById[state.activeBranchId]?.timeline ?? []).flatMap(
+        (nodeId) => {
+          const candidate = state.nodesById[nodeId];
+          return candidate && candidate.type === "citation" ? [candidate.id] : [];
+        }
+      );
       const decision = recordDecision({
         claim: payload.claim,
         confidence: payload.confidence,
         rationale: payload.rationale,
-        provenance: [],
+        provenance,
         alternatives: payload.alternatives || []
       });
       requestActionApproval({
@@ -182,7 +189,7 @@ export function LLMOrchestrator() {
     } finally {
       setIsLoading(false);
     }
-  }, [recordDecision, requestActionApproval]);
+  }, [recordDecision, requestActionApproval, state]);
 
   // Auto-continuation loop: watch for resolved conflicts on the active branch.
   useEffect(() => {

@@ -237,7 +237,7 @@ export function DecisionModal(props: DecisionModalProps) {
                 </p>
                 <h2
                   id={titleId}
-                  className="mt-2 truncate text-base font-semibold tracking-tight text-white"
+                  className="mt-2 text-base font-semibold leading-snug tracking-tight text-white"
                 >
                   {decision.claim}
                 </h2>

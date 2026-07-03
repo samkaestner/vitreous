@@ -111,8 +111,8 @@ export function ExecutionNodeUI({ node, isActive }: ExecutionNodeUIProps) {
             />
           </div>
         ) : (
-          <div className="rounded-[0.85rem] border border-white/10 bg-black/20 p-3">
-            <pre className={`text-[11px] font-mono leading-relaxed ${isActive ? "text-white/70" : "text-white/40"} overflow-x-auto`}>
+          <div className="max-h-44 overflow-y-auto rounded-[0.85rem] border border-white/10 bg-black/20 p-3">
+            <pre className={`whitespace-pre-wrap break-words text-[11px] font-mono leading-relaxed ${isActive ? "text-white/70" : "text-white/40"}`}>
               {payloadStr}
             </pre>
           </div>
