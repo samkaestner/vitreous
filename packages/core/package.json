@@ -1,6 +1,24 @@
 {
-  "name": "@vitreous/core",
-  "version": "0.0.0",
+  "name": "@glassbox/core",
+  "version": "0.1.0",
+  "description": "Pure TypeScript DAG state machine for AI thought trees \u2014 the core of the Glassbox XAI framework.",
+  "keywords": [
+    "ai",
+    "xai",
+    "explainability",
+    "transparency",
+    "dag",
+    "thought-tree",
+    "ux"
+  ],
+  "homepage": "https://github.com/samkaestner/glass-box",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samkaestner/glass-box.git",
+    "directory": "packages/core"
+  },
+  "license": "MIT",
+  "author": "Sam Kaestner",
   "private": false,
   "type": "module",
   "sideEffects": false,
@@ -13,14 +31,17 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev": "tsup src/index.ts --format esm --dts --clean=false --watch",
     "build": "tsup src/index.ts --format esm --dts --clean",
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "echo \"(no lint yet)\""
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
     "tsup": "^8.5.0",
@@ -28,4 +49,3 @@
     "vitest": "^3.2.4"
   }
 }
-

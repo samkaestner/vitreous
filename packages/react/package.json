@@ -1,6 +1,25 @@
 {
-  "name": "@vitreous/react",
-  "version": "0.0.0",
+  "name": "@glassbox/react",
+  "version": "0.1.0",
+  "description": "React UI components for AI transparency \u2014 SpatialRail, Execution Gate, Conflict Resolution, and Confidence Provenance.",
+  "keywords": [
+    "ai",
+    "xai",
+    "explainability",
+    "react",
+    "spatial-rail",
+    "thought-tree",
+    "ux",
+    "trust"
+  ],
+  "homepage": "https://github.com/samkaestner/glass-box",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samkaestner/glass-box.git",
+    "directory": "packages/react"
+  },
+  "license": "MIT",
+  "author": "Sam Kaestner",
   "private": false,
   "type": "module",
   "sideEffects": false,
@@ -13,18 +32,21 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "dev": "tsup src/index.tsx --format esm --dts --clean=false --watch --external react --external react-dom",
-    "build": "tsup src/index.tsx --format esm --dts --clean --external react --external react-dom",
+    "dev": "tsup src/index.tsx --format esm --dts --clean=false --watch --external react react-dom",
+    "build": "tsup src/index.tsx --format esm --dts --clean --external react react-dom",
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "echo \"(no lint yet)\""
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@vitreous/core": "workspace:*",
-    "@vitreous/theme": "workspace:*",
+    "@glassbox/core": "workspace:*",
+    "@glassbox/theme": "workspace:*",
     "framer-motion": "^12.23.12"
   },
   "peerDependencies": {
@@ -32,13 +54,13 @@
     "react-dom": ">=19"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^19.1.7",
+    "@types/react-dom": "^19.1.5",
     "jsdom": "^26.1.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   }
 }
-
