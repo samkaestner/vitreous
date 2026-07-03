@@ -13,7 +13,7 @@ export default function QuickstartPage() {
       <section className="space-y-4">
         <h2 className="text-2xl font-semibold tracking-tight text-white">1. Install</h2>
         <div className="overflow-hidden rounded-xl border border-white/15 bg-[#121722] p-5">
-          <pre className="text-sm text-white/80"><code>npm install @glassbox/core @glassbox/react</code></pre>
+          <pre className="text-sm text-white/80"><code>npm install @vitreous/core @vitreous/react</code></pre>
         </div>
         <p className="text-sm text-white/50">Peer dependencies: React ≥ 19, React DOM ≥ 19</p>
       </section>
@@ -25,7 +25,7 @@ export default function QuickstartPage() {
           your application root. This initializes the DAG state manager and makes it available everywhere.
         </p>
         <div className="overflow-hidden rounded-xl border border-white/15 bg-[#121722] p-5">
-          <pre className="overflow-x-auto text-sm leading-relaxed text-white/80"><code>{`import { ThoughtTreeProvider } from '@glassbox/react';
+          <pre className="overflow-x-auto text-sm leading-relaxed text-white/80"><code>{`import { ThoughtTreeProvider } from '@vitreous/react';
 
 export function App() {
   return (
@@ -44,7 +44,7 @@ export function App() {
           layout as a right-rail panel alongside your main content.
         </p>
         <div className="overflow-hidden rounded-xl border border-white/15 bg-[#121722] p-5">
-          <pre className="overflow-x-auto text-sm leading-relaxed text-white/80"><code>{`import { SpatialRail } from '@glassbox/react';
+          <pre className="overflow-x-auto text-sm leading-relaxed text-white/80"><code>{`import { SpatialRail } from '@vitreous/react';
 
 export function Layout({ children }) {
   return (
@@ -66,7 +66,7 @@ export function Layout({ children }) {
           to add nodes as your AI generates reasoning. Nodes appear in the SpatialRail automatically.
         </p>
         <div className="overflow-hidden rounded-xl border border-white/15 bg-[#121722] p-5">
-          <pre className="overflow-x-auto text-sm leading-relaxed text-white/80"><code>{`import { useThoughtTree } from '@glassbox/react';
+          <pre className="overflow-x-auto text-sm leading-relaxed text-white/80"><code>{`import { useThoughtTree } from '@vitreous/react';
 
 function AIComponent() {
   const { addNode } = useThoughtTree();

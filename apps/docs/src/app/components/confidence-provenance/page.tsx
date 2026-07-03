@@ -72,7 +72,7 @@ addNode({
             </div>
           ))}
         </div>
-        <p className="text-sm text-white/50">Override via <code className="font-mono text-xs">@glassbox/theme</code> tokens.</p>
+        <p className="text-sm text-white/50">Override via <code className="font-mono text-xs">@vitreous/theme</code> tokens.</p>
       </section>
 
       <section className="space-y-4">

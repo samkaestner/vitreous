@@ -1,13 +1,13 @@
-# @glassbox/react
+# @vitreous/react
 
-React UI components for AI transparency — the UI layer of the [Glassbox](https://github.com/samkaestner/glass-box) XAI framework.
+React UI components for AI transparency — the UI layer of the [Vitreous](https://github.com/samkaestner/vitreous) XAI framework.
 
-Built on [`@glassbox/core`](https://www.npmjs.com/package/@glassbox/core), styled with Tailwind CSS, animated with Framer Motion.
+Built on [`@vitreous/core`](https://www.npmjs.com/package/@vitreous/core), styled with Tailwind CSS, animated with Framer Motion.
 
 ## Install
 
 ```bash
-npm install @glassbox/core @glassbox/react
+npm install @vitreous/core @vitreous/react
 ```
 
 **Peer dependencies:** React ≥ 19, React DOM ≥ 19
@@ -15,7 +15,7 @@ npm install @glassbox/core @glassbox/react
 ## Quick Start
 
 ```tsx
-import { ThoughtTreeProvider, useThoughtTree, SpatialRail } from '@glassbox/react';
+import { ThoughtTreeProvider, useThoughtTree, SpatialRail } from '@vitreous/react';
 
 // 1. Wrap your app
 function App() {
@@ -124,14 +124,14 @@ Standalone conflict resolution widget. Shows contending citation pairs side-by-s
 
 ## Theming
 
-Glassbox uses `@glassbox/theme` for design tokens. Override via CSS custom properties or swap the Tailwind preset:
+Vitreous uses `@vitreous/theme` for design tokens. Override via CSS custom properties or swap the Tailwind preset:
 
 ```ts
 // tailwind.config.ts
-import { glassboxPreset } from '@glassbox/theme';
+import { vitreousTailwindPreset } from '@vitreous/theme/tailwind';
 
 export default {
-  presets: [glassboxPreset],
+  presets: [vitreousTailwindPreset],
   // your overrides
 };
 ```

@@ -7,7 +7,7 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Glassbox — AI Transparency Framework",
+  title: "Vitreous — AI Transparency Framework",
   description: "UX primitives for building trustworthy AI interfaces.",
 };
 
@@ -18,14 +18,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <aside className="w-64 shrink-0 border-r border-white/10 bg-[#0a0d14] p-6 hidden md:flex md:flex-col sticky top-0 h-screen overflow-y-auto">
           <div className="mb-8">
             <Link href="/" className="text-white font-semibold text-lg tracking-tight hover:text-[#e0bc78] transition">
-              Glassbox
+              Vitreous
             </Link>
           </div>
           <nav className="flex flex-col gap-6">
             <div>
               <h2 className="text-xs font-semibold tracking-wider text-white/30 uppercase mb-3">Getting Started</h2>
               <div className="flex flex-col gap-2">
-                <Link href="/why" className="text-sm text-white/70 transition hover:text-white">Why Glassbox</Link>
+                <Link href="/why" className="text-sm text-white/70 transition hover:text-white">Why Vitreous</Link>
                 <Link href="/" className="text-sm text-white/70 transition hover:text-white">Quickstart</Link>
                 <Link href="/architecture" className="text-sm text-white/70 transition hover:text-white">Architecture</Link>
               </div>

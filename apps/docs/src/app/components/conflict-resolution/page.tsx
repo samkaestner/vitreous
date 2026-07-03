@@ -75,7 +75,7 @@ resolveConflict({
       <section className="space-y-4">
         <h2 className="text-2xl font-semibold tracking-tight text-white">Standalone widget</h2>
         <div className="overflow-hidden rounded-xl border border-white/15 bg-[#121722] p-5">
-          <pre className="text-sm text-white/80"><code>{`import { ConflictNodeUI } from '@glassbox/react';
+          <pre className="text-sm text-white/80"><code>{`import { ConflictNodeUI } from '@vitreous/react';
 
 <ConflictNodeUI nodeId={conflictNodeId} />`}</code></pre>
         </div>

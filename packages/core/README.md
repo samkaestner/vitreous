@@ -1,20 +1,20 @@
-# @glassbox/core
+# @vitreous/core
 
-Pure TypeScript DAG state machine for AI thought trees. The state layer behind the [Glassbox](https://github.com/samkaestner/glass-box) XAI framework.
+Pure TypeScript DAG state machine for AI thought trees. The state layer behind the [Vitreous](https://github.com/samkaestner/vitreous) XAI framework.
 
 **Zero runtime dependencies. Framework-agnostic. Fully typed.**
 
 ## Install
 
 ```bash
-npm install @glassbox/core
+npm install @vitreous/core
 ```
 
 ## What it does
 
-Glassbox models AI reasoning as a Directed Acyclic Graph (DAG) — not a flat array of messages. `@glassbox/core` manages that graph: typed, immutable node creation, branch forking, conflict resolution, and execution gate state, all with deterministic IDs and strict validation.
+Vitreous models AI reasoning as a Directed Acyclic Graph (DAG) — not a flat array of messages. `@vitreous/core` manages that graph: typed, immutable node creation, branch forking, conflict resolution, and execution gate state, all with deterministic IDs and strict validation.
 
-Use it standalone if you want to build your own UI. Pair it with [`@glassbox/react`](https://www.npmjs.com/package/@glassbox/react) for ready-made components.
+Use it standalone if you want to build your own UI. Pair it with [`@vitreous/react`](https://www.npmjs.com/package/@vitreous/react) for ready-made components.
 
 ## Node Types
 
@@ -30,7 +30,7 @@ Use it standalone if you want to build your own UI. Pair it with [`@glassbox/rea
 ```ts
 import {
   createThoughtTreeStateManager,
-} from '@glassbox/core';
+} from '@vitreous/core';
 
 const manager = createThoughtTreeStateManager();
 
@@ -85,7 +85,7 @@ listNodeIdsByType(state, type: ThoughtNodeType): NodeId[]
 
 ## Types
 
-All types are exported from `@glassbox/core`:
+All types are exported from `@vitreous/core`:
 
 - `ThoughtNode`, `CitationNode`, `DecisionNode`, `ExecutionNode`, `ConflictNode`
 - `ThoughtTreeState`, `BranchMeta`, `ThoughtEdge`

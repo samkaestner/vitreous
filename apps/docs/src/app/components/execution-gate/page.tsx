@@ -98,7 +98,7 @@ useEffect(() => {
           You can also render the gate controls outside the SpatialRail using <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-xs">ExecutionNodeUI</code> directly:
         </p>
         <div className="overflow-hidden rounded-xl border border-white/15 bg-[#121722] p-5">
-          <pre className="text-sm text-white/80"><code>{`import { ExecutionNodeUI } from '@glassbox/react';
+          <pre className="text-sm text-white/80"><code>{`import { ExecutionNodeUI } from '@vitreous/react';
 
 <ExecutionNodeUI nodeId={executionNodeId} />`}</code></pre>
         </div>
