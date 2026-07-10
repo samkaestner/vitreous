@@ -1,0 +1,41 @@
+{
+  "name": "@vitreous/adapter-anthropic",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "tsup src/index.ts --format esm --dts --clean=false --watch",
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@vitreous/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "@anthropic-ai/sdk": ">=0.80.0 <1.0.0"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.111.0",
+    "@types/node": "^20.19.9",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
