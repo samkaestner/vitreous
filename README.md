@@ -2,6 +2,10 @@
 
 *An approach to building AI reasoning interfaces that are inspectable, steerable, and bounded.*
 
+![The Vitreous playground: an AI hits contradictory evidence, halts, and asks the user to arbitrate; the resulting decision is grounded in cited sources and the state-changing action stops at an approval gate.](./docs/demo.gif)
+
+**[Try the live demo →](https://vitreous-playground.vercel.app)** Ask it how to train for a marathon. Watch it find the contradiction, stop, and hand you the decision.
+
 ---
 
 ## What this is
