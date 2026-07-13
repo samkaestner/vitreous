@@ -19,7 +19,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createVitreousRun } from "@vitreous/core";
 import { createAnthropicAdapter, sourceTool, gatedTool } from "@vitreous/adapter-anthropic";
 
-const run = createVitreousRun({ title: "Marathon training plan" });
+const run = createVitreousRun({ title: "Gran fondo training plan" });
 
 const searchStudies = sourceTool({
   name: "search_studies",
@@ -55,7 +55,7 @@ const adapter = createAnthropicAdapter({
   },
 });
 
-const result = await adapter.ask("How should I train for a marathon?");
+const result = await adapter.ask("How should I train for a gran fondo?");
 console.log(result.decision); // { claim, confidence, rationale, nodeId }
 ```
 
@@ -75,12 +75,12 @@ Everything that matters about a run is reconstructible from `run.events` — see
 
 `resolveGate` and `resolveConflict` are the two calls a host application makes back into the adapter — from a UI, a CLI prompt, or wherever a human sits in the loop. Both throw on an unknown node id, since that indicates a bug in the caller rather than a recoverable runtime condition.
 
-See the repository root [README](../../README.md) for the substrate this adapter sits on top of, and [`examples/marathon.ts`](./examples/marathon.ts) for a headless recreation of the playground's flagship contradictory-evidence scenario, including a human arbitrating a conflict and a gate from the terminal.
+See the repository root [README](../../README.md) for the substrate this adapter sits on top of, and [`examples/gran-fondo.ts`](./examples/gran-fondo.ts) for a headless recreation of the playground's flagship contradictory-evidence scenario, including a human arbitrating a conflict and a gate from the terminal.
 
 ## Example
 
-`examples/marathon.ts` is not part of the package build — run it directly with `tsx` (requires `ANTHROPIC_API_KEY` in the environment, since it makes real API calls):
+`examples/gran-fondo.ts` is not part of the package build — run it directly with `tsx` (requires `ANTHROPIC_API_KEY` in the environment, since it makes real API calls):
 
 ```sh
-npx tsx examples/marathon.ts
+npx tsx examples/gran-fondo.ts
 ```

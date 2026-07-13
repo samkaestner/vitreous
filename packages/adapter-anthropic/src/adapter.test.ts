@@ -99,11 +99,11 @@ describe("createAnthropicAdapter", () => {
     });
 
     const { client, calls } = mockClient([
-      assistantMessage([toolUseBlock("search_studies", { query: "marathon training" })], "tool_use"),
+      assistantMessage([toolUseBlock("search_studies", { query: "gran fondo training" })], "tool_use"),
       assistantMessage(
         [
           toolUseBlock("record_decision", {
-            claim: "Zone 2 training builds the aerobic base needed for marathon pacing.",
+            claim: "Zone 2 training builds the aerobic base needed for gran fondo pacing.",
             confidence: 0.8,
             rationale: "Supported by the retrieved Zone 2 study.",
             provenance: ["src-2"],
@@ -115,10 +115,10 @@ describe("createAnthropicAdapter", () => {
     ]);
 
     const adapter = createAnthropicAdapter({ client, run, tools: [searchTool] });
-    const result = await adapter.ask("How should I train for a marathon?");
+    const result = await adapter.ask("How should I train for a gran fondo?");
 
     expect(result.status).toBe("completed");
-    expect(result.decision?.claim).toBe("Zone 2 training builds the aerobic base needed for marathon pacing.");
+    expect(result.decision?.claim).toBe("Zone 2 training builds the aerobic base needed for gran fondo pacing.");
     expect(result.decision?.confidence).toBe(0.8);
 
     const events = run.events;
@@ -179,7 +179,7 @@ describe("createAnthropicAdapter", () => {
       onPause: (pause) => pauses.push(pause),
     });
 
-    const resultPromise = adapter.ask("How should I train for a marathon?");
+    const resultPromise = adapter.ask("How should I train for a gran fondo?");
 
     // Let the search turn and the flag_conflict turn both run; the loop
     // should then be suspended awaiting resolveConflict, with no further

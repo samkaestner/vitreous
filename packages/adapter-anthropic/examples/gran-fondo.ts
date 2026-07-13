@@ -1,7 +1,7 @@
 /**
- * marathon.ts — a headless recreation of the Vitreous playground's
+ * gran-fondo.ts — a headless recreation of the Vitreous playground's
  * flagship scenario: two training studies that flatly contradict each
- * other on how to train for a marathon, a search tool that surfaces both,
+ * other on how to train for a gran fondo, a search tool that surfaces both,
  * a gated tool that persists the resulting plan, and a human in the loop
  * arbitrating the contradiction and approving the state-changing action
  * from the terminal.
@@ -12,7 +12,7 @@
  * human, and the full decision — with its provenance — is reconstructible
  * afterwards purely from the event log.
  *
- * Run with: npx tsx examples/marathon.ts
+ * Run with: npx tsx examples/gran-fondo.ts
  * Requires ANTHROPIC_API_KEY in the environment — this makes real API calls.
  */
 
@@ -39,14 +39,14 @@ const HIIT_STUDY = `# High-Intensity Interval Training (HIIT) as the Primary Dri
 **Findings**:
 - Athletes performing HIIT sessions (Zone 5) for 60% of their weekly volume saw rapid and sustained increases in VO2 Max over a 12-week period.
 - Low-intensity training (Zone 2) was found to be an inefficient use of time for non-elite athletes, contributing minimally to top-end speed or aerobic capacity gains.
-- We recommend a training split consisting of a majority (60%+) of high-intensity threshold and interval work for optimal marathon preparation.`;
+- We recommend a training split consisting of a majority (60%+) of high-intensity threshold and interval work for optimal gran fondo preparation.`;
 
 const ZONE2_STUDY = `# The Superiority of Zone 2 Volume for Endurance Adaptations
 
-**Abstract**: This study investigates the impact of low-intensity, high-volume (Zone 2) training on VO2 max and mitochondrial density in elite and amateur marathon runners.
+**Abstract**: This study investigates the impact of low-intensity, high-volume (Zone 2) training on VO2 max and mitochondrial density in elite and amateur gran fondo runners.
 **Findings**:
 - Athletes who spent 80% of their training volume in Zone 2 experienced a 12% greater increase in mitochondrial density compared to the control group.
-- Zone 2 training at high volumes builds the necessary aerobic base and capillary density required for sustained marathon pacing.
+- Zone 2 training at high volumes builds the necessary aerobic base and capillary density required for sustained gran fondo pacing.
 - The recommended training split is 80/20 (80% Zone 2, 20% high intensity).`;
 
 // ---------------------------------------------------------------------------
@@ -55,7 +55,7 @@ const ZONE2_STUDY = `# The Superiority of Zone 2 Volume for Endurance Adaptation
 
 const searchStudies = sourceTool({
   name: "search_studies",
-  description: "Search the training-science literature for studies relevant to a marathon training question.",
+  description: "Search the training-science literature for studies relevant to a gran fondo training question.",
   inputSchema: {
     type: "object",
     properties: {
@@ -128,7 +128,7 @@ async function handlePause(pause: AdapterPause, resolveGate: (id: string, decisi
 // Wire it up and run.
 // ---------------------------------------------------------------------------
 
-const run = createVitreousRun({ title: "Marathon training plan" });
+const run = createVitreousRun({ title: "Gran fondo training plan" });
 
 const adapter = createAnthropicAdapter({
   client: new Anthropic(), // reads ANTHROPIC_API_KEY from the environment
@@ -144,7 +144,7 @@ const adapter = createAnthropicAdapter({
 
 async function main(): Promise<void> {
   const result = await adapter.ask(
-    "How should I train for an upcoming marathon? Once you've decided, save the plan."
+    "How should I train for an upcoming gran fondo? Once you've decided, save the plan."
   );
 
   console.log("\n=== Decision ===");
